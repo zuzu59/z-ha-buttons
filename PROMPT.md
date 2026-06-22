@@ -1,158 +1,246 @@
 # z-ha-buttons
+
 zf260622.1533, zf260622.1625
 
+## But
 
-# Buts
-Avoir une application PWA sur mon smartphone qui me permet de gérer facilement des boutons pour allumer éteindre des appareils via l'api de home assistant.
+Créer une application PWA sur smartphone pour piloter facilement des boutons
+Home Assistant afin d'allumer et d'éteindre des appareils via l'API.
 
+## Objectif produit
 
-# Conditions de développement
-* Je veux créer un projet de PWA avec Vite, Vue.js 3 et Dexie.js pour la base de données locale. Utilise le plugin @vite-pwa/plugin pour configurer automatiquement le Service Worker et le mode hors-ligne.
+- Application PWA moderne, simple et agréable à utiliser.
+- Usage prioritaire sur smartphone, mais aussi confortable sur desktop.
+- Déploiement sur GitHub Pages via la branche `gh-pages`, uniquement sur
+  demande.
 
-* Je veux que cela soit facile à utiliser depuis un smartphone mais aussi sur un browser desktop.
+## Stack et base technique
 
-* Je veux qu'elle soit déployée dans la branche gh-pages dans une Github Pages (afin d'être déployable via Internet) uniquement lorsque je le demande.
+- Vite.
+- Vue.js 3.
+- Dexie.js pour la base locale.
+- `@vite-pwa/plugin` pour configurer automatiquement le Service Worker et le
+  mode hors ligne.
 
-* Contraintes techniques absolues que tu dois respecter dans tout le code que tu vas générer :
+## Contraintes techniques absolues
 
-    - Dérivation de clé : Utilise uniquement PBKDF2 (via l'API native Web Crypto Subtle) avec SHA-256, un Salt unique généré aléatoirement par crypto.getRandomValues(), et un minimum de 600 000 itérations pour dériver le mot de passe maître en clé AES.
-    - Chiffrement : Utilise l'algorithme AES-GCM (256 bits) natif pour chiffrer et déshiffrer les données des mots de passe. Chaque chiffrement doit utiliser un vecteur d'initialisation (IV) de 12 octets unique et régénéré à chaque fois.
-    - Gestion de la mémoire : Évite au maximum de stocker les mots de passe dans des chaînes de caractères (strings) persistantes en JavaScript. Privilégie l'utilisation de Uint8Array et propose une fonction pour écraser (wipe) la mémoire avec des zéros (.fill(0)) après utilisation.
-    - Ne stocke JAMAIS le mot de passe maître ni la clé dérivée. Stocke uniquement le sel (Salt), le vecteur d'initialisation (IV) et le blob chiffré (cipher text + auth tag).
-    - Ajoute un mécanisme de verrouillage automatique après X minutes d'inactivité (qui efface la clé dérivée de la mémoire de l'application).
-    - Ne propose aucune bibliothèque externe obsolète comme CryptoJS ou sjcl. Utilise uniquement l'API Web Crypto.
+### Chiffrement et secrets
 
+- Dérivation de clé uniquement via PBKDF2.
+- Utiliser l'API native Web Crypto Subtle.
+- Algorithme de hachage : SHA-256.
+- Salt unique généré avec `crypto.getRandomValues()`.
+- Minimum 600 000 itérations.
+- Chiffrement uniquement avec AES-GCM 256 bits natif.
+- Chaque chiffrement doit utiliser un IV de 12 octets unique et régénéré à
+  chaque fois.
+- Ne jamais stocker le mot de passe maître ni la clé dérivée.
+- Ne stocker que le salt, l'IV et le blob chiffré
+  (`ciphertext + auth tag`).
 
-# Directives
+### Gestion mémoire
 
-* L'interface doit être simple, rapide, sexy et conviviale !
+- Éviter au maximum les chaînes de caractères persistantes pour les mots de
+  passe.
+- Préférer `Uint8Array` dès que possible.
+- Prévoir une fonction de wipe mémoire avec `.fill(0)` après utilisation.
+- Prévoir un verrouillage automatique après X minutes d'inactivité.
+- Le verrouillage doit effacer la clé dérivée de la mémoire de l'application.
+- Ne proposer aucune bibliothèque obsolète comme CryptoJS ou sjcl.
+- Utiliser uniquement l'API Web Crypto.
 
-* Les boutons, avec leur état actuel sur home assistant, sont affichés sur deux colonnes sur la page principale.
+## Interface et navigation
 
-* C'est des boutons toggle, à chaque clic ils changent d'état
+- Interface simple, rapide, sexy et conviviale.
+- Style sombre, moderne, lisible et très contrasté.
+- Design mobile-first, mais utilisable sur desktop.
+- Offline-first.
+- Fiable et simple à maintenir.
+- Boutons compacts et cohérents partout.
+- Aucun retour à la ligne du titre de l'application dans la barre supérieure.
+- Le champ de recherche ne doit jamais déformer le titre.
+- Le hamburger doit rester discret, visible, et toujours à droite.
+- Le menu doit rester compact.
+- Quand on clique sur le titre en haut à gauche, on revient à la home page.
 
-* Si on appuie longtemps sur un bouton et que c'est une lampe, on arrive dans le détail du bouton où l'on peut choisir l'intensité et la température de couleur.
+## Page principale
 
-* Sur cette page de détails, il y a en haut à droite un bouton 'modifier' qui permet de configurer le bouton au complet y compris sa couleur et son icône (même page que ajouter bouton).
+- Afficher les boutons sur deux colonnes.
+- Afficher l'état actuel de chaque bouton via Home Assistant.
+- Les boutons sont des toggles.
+- À chaque clic, ils changent d'état.
+- Un appui long sur un bouton lampe ouvre sa page de détail.
+- Sur cette page, on peut régler l'intensité.
+- Sur cette page, on peut régler la température de couleur.
+- En haut à droite de la page de détail, un bouton `modifier` permet de
+  reconfigurer le bouton complet.
+- La page `modifier` est la même que la page d'ajout de bouton.
 
-* Sur la page principale, il y a un hamburger en haut à droite avec un menu. 
+## Menu hamburger
 
-* Les menus du hamburger sont, dans l'ordre: 
-    - Help
-    - Ordre d'affichage des boutons sur la page principale 
-    - Ajout d'un bouton
-    - Configuration 
-    - Exportation en CSV de la configuration de l'application 
-    - Importation en CSV de la configuration de l'application 
-    - About
+L'ordre des entrées doit être le suivant :
 
-* Dans la page configuration on définit:
-    - L'adresse du serveur home assistant 
-    - Le token de l'api de home assistant 
+- Help.
+- Ordre d'affichage des boutons sur la page principale.
+- Ajout d'un bouton.
+- Configuration.
+- Exportation en CSV de la configuration de l'application.
+- Importation en CSV de la configuration de l'application.
+- About.
 
-* Dans la page ajout ou modification d'un bouton on définit:
-    - Son entité sur home assistant 
-    - L'icône du bouton choisi parmis un choix d'icones
-    - La couleur du cadre du bouton
-    - La date de création du bouton
-    - La date de modification du bouton
-    (Les dates sont affichées mais pas modifiables )
+## Configuration
 
-* Je veux pouvoir exporter ou importer toute la db en csv. Les passwords seront chiffrés.
-Lors de l'importation, il y aura remise à zéro de la db (pas de fusion) avec un message indiquant la confirmation ou annulation !
+Dans la page de configuration, définir :
 
-* Le commit, doit être atomic avec les préfixes new, change, fixe, refact, del détaillés de toutes les actions effectuées et après un changelog avec version + date et heure doit être tenu sur GitHub 
+- L'adresse du serveur Home Assistant.
+- Le token de l'API Home Assistant.
 
-* Je veux que pour le dévelopement on travail sur un serveur web local sur allumé en permanence sur le port 4173
+## Ajout et modification d'un bouton
 
-* je veux que chaque copie d'écran de vérification soit sauvegardée dans le dossiers copies-d-ecran et poussé aussi sur Github
+Dans la page d'ajout ou de modification d'un bouton, définir :
 
-* Quand on clique sur le titre de l'application en haut à gauche cela se positionne sur la home page de l'application
+- Son entité Home Assistant.
+- L'icône du bouton choisie parmi une liste d'icônes.
+- La couleur du cadre du bouton.
+- La date de création du bouton.
+- La date de modification du bouton.
 
+Les dates sont affichées, mais pas modifiables.
 
-## Le menu About
-Doit afficher :
-- le profil GitHub `GitHub.com/zuzu59`
-- le dépôt GitHub de l’application
-- la version de l’application
-- un lien vers le changelog
+## Export et import
 
-Comportement About :
-- au chargement/ouverture, vérifier la dernière release GitHub
-- si une version plus récente existe, afficher “Nouvelle version disponible”
-- le clic sur la version ouvre le changelog GitHub
-- les boutons de la page About doivent respecter la règle de hauteur compacte
-- la vérification de release doit rester fiable même avec cache navigateur / refresh
+- Permettre l'export de toute la base en CSV.
+- Permettre l'import de toute la base en CSV.
+- Les mots de passe doivent être chiffrés à l'export.
+- Lors de l'import, réinitialiser la base avant insertion.
+- Il ne doit pas y avoir de fusion.
+- Afficher un message clair de confirmation ou d'annulation.
 
-## Versions / releases / changelog
-- Version affichée en bas de chaque page.
-- Versionnement en `0.0.x`.
-- Releases GitHub utiles et détaillées.
-- Ne pas incrémenter la version si le commit ne modifie pas l’application buildée.
-- Changelog en français au format **Keep a Changelog**.
-- Chaque version doit inclure **date et heure**.
-- Le changelog doit détailler les commits, pas une ligne vide.
-- Les anciennes releases GitHub doivent être rétro-remplies avec du contenu utile.
+## Git, commits et changelog
+
+- Les commits doivent être atomiques.
+- Utiliser les préfixes suivants : `new`, `change`, `fixe`, `refact`, `del`.
+- Détailler toutes les actions dans les commits.
+- Maintenir un changelog sur GitHub avec version, date et heure.
+- Éviter les commits de travail inutiles du type
+  `change: bump version to 0.0.x` sans valeur.
+- Ne pas incrémenter la version si le commit ne modifie pas l'application
+  buildée.
+- Les releases GitHub doivent être utiles, détaillées et cohérentes.
 - Les notes de release doivent être générées depuis les commits.
-- Éviter les commits de travail absurdes du type `change: bump version to 0.0.x` sans valeur.
-- Utiliser des commits atomiques avec les préfixes : `new`, `change`, `fixe`, `refact`, `del`.
-- La reconstruction du changelog doit partir des commits réels, avec du détail utile.
-- Les entrées de version doivent garder l’ordre chronologique et les sections pertinentes.
-- Les releases GitHub doivent reprendre le même niveau de détail que le changelog local.
-- Quand un gros effort a été consacré au changelog, il faut conserver l’historique détaillé.
-- Les blocs de version doivent refléter les vraies améliorations produit : UI, sécurité, releases, workflows, corrections de bugs.
+- Les anciennes releases doivent être rétro-remplies avec du contenu utile.
+- Le changelog doit suivre le format Keep a Changelog, en français.
+- Chaque version doit inclure la date et l'heure.
+- Les entrées doivent rester dans l'ordre chronologique.
+- Les sections du changelog doivent rester pertinentes.
+- Les releases GitHub doivent garder le même niveau de détail que le
+  changelog local.
+- Quand un gros effort a été consacré au changelog, conserver cet historique
+  détaillé.
+- Les blocs de version doivent refléter les vraies améliorations produit :
+  UI, sécurité, releases, workflows et corrections de bugs.
 
-## Workflow Git / mini kanban
+## Workflow Git et mini kanban
+
 - Lire `kanban-a-faire.md` avant de commencer.
 - Déplacer immédiatement toute tâche terminée dans `kanban-termine.md`.
-- Travailler une tâche à la fois.
+- Travailler une seule tâche à la fois.
 - Garder le projet déployable à tout moment.
 - Le kanban est la source simple de vérité pour la prochaine action.
 - Les tâches doivent être courtes, concrètes et orientées résultat.
-- Quand une tâche est finie, elle doit quitter `kanban-a-faire.md` immédiatement.
-- Le kanban doit rester propre : pas de doublons, pas de tâches floues, pas d’éléments non actionnables.
-- Préférer un **mini kanban** très clair plutôt qu’un backlog lourd.
+- Quand une tâche est finie, elle doit quitter `kanban-a-faire.md`
+  immédiatement.
+- Garder le kanban propre : pas de doublons, pas de tâches floues, pas
+  d'éléments non actionnables.
+- Préférer un mini kanban clair plutôt qu'un backlog lourd.
 
-## Cycle de validation par le navigateur (impératif)
-À chaque fois que tu termines une modification de code, tu dois suivre scrupuleusement ces étapes dans l'ordre pour vérifier ton travail :
-1 Build l'application : Exécute npm run build pour compiler le projet et t'assurer qu'il n'y a aucune erreur de syntaxe.
-2 Démarre le serveur (uniquement la première fois) : Exécute pm2 start npm --name "pwa-serve" -- run preview. Le site sera disponible localement.
-3 Inspecte le résultat avec Playwright : Lance un script Playwright (Chromium) pour ouvrir la page locale (0.0.0.0 4173), faire une capture d'écran de l'interface, ou analyser le code HTML généré.
-4 Auto-correction : Si la capture d'écran montre un bug visuel ou si Playwright détecte une erreur, corrige ton code et recommence à l'étape 1. Ne t'arrête que lorsque le résultat visuel est parfait.
-Et encore:
-- Ne jamais valider une UI sur le DOM seul.
-- Conserver toutes captures dans `copies-d-ecrans/`.
-- Le serveur local de validation doit utiliser ***host 0.0.0.0 4173**.
-- Si un autre port existe, le fermer pour n’utiliser que **4173**.
-- Le serveur local sert au développement rapide : il doit permettre d’itérer sans avoir besoin de déployer sur GitHub à chaque modification.
-- Incrémenter la version à chaque midification du code afin que je puisse vérifier que je tourne la dernière version !
+## Validation locale par navigateur
 
-## Déploiement, seulement quand je le demande
-- Le site doit être déployable sur GitHub Pages depuis la branche gh-pages.
-- Après push, vérifier GitHub Actions / Deployments.
-- Ne pousser / publier qu’après validation locale visuelle.
+À chaque modification de code, suivre strictement cet ordre :
+
+1. Construire l'application avec `npm run build`.
+2. Démarrer le serveur local une seule fois avec
+   `pm2 start npm --name "pwa-serve" -- run preview`.
+3. Inspecter le résultat avec Playwright Chromium sur `0.0.0.0:4173`.
+4. Faire une capture d'écran ou analyser le HTML généré.
+5. Corriger tout bug visuel ou erreur détectée.
+6. Recommencer depuis l'étape 1 jusqu'à obtenir un résultat parfait.
+
+Règles associées :
+
+- Ne jamais valider une UI uniquement via le DOM.
+- Conserver toutes les captures dans `copies-d-ecrans/`.
+- Le serveur local de validation doit utiliser `host 0.0.0.0` et le port
+  `4173`.
+- Si un autre port existe, le fermer pour n'en garder qu'un seul.
+- Le serveur local sert à itérer rapidement, sans déployer à chaque
+  modification.
+- Incrémenter la version à chaque modification de code afin de vérifier que
+  la dernière version est bien utilisée.
+
+## Déploiement
+
+- Déployer uniquement quand cela est demandé.
+- Le site doit rester déployable sur GitHub Pages via `gh-pages`.
+- Après push, vérifier GitHub Actions et les déploiements.
+- Ne pousser ou publier qu'après validation locale visuelle.
 - Les artefacts de build doivent rester compatibles avec GitHub Pages.
-- Les problèmes de workflow GitHub doivent être corrigés avant de considérer la livraison comme terminée.
-- Si la modification ne change pas l’application elle-même (ex. prompt, documentation, kanban, notes), il est possible de pousser sans incrémenter la version applicative ni redéployer l’app.
-- pousser le changlog et la version dans le système de release de Github
+- Corriger les problèmes de workflow GitHub avant de considérer la livraison
+  comme terminée.
+- Si la modification ne change pas l'application elle-même
+  (prompt, documentation, kanban, notes), il est possible de pousser sans
+  incrémenter la version applicative ni redéployer.
+- Pousser le changelog et la version dans le système de release GitHub.
 
-## Style attendu
-- Interface sombre, bien constrasté, moderne.
-- Mobile-first.
-- Offline-first.
-- Fiable.
-- Lisible.
-- Simple à maintenir.
-- Boutons compacts et cohérents partout.
-- Aucun wrap du titre de l’app dans la barre supérieure.
-- Le champ de recherche ne doit jamais déformer le titre.
-- Le hamburger doit rester accessible et discret, toujours à droite.
-- Le menu doit être visible mais compact.
+## Menu About
+
+Le menu About doit afficher :
+
+- Le profil GitHub `GitHub.com/zuzu59`.
+- Le dépôt GitHub de l'application.
+- La version de l'application.
+- Un lien vers le changelog.
+
+### Comportement About
+
+- Au chargement, vérifier la dernière release GitHub.
+- Si une version plus récente existe, afficher `Nouvelle version disponible`.
+- Le clic sur la version ouvre le changelog GitHub.
+- Les boutons de la page About doivent respecter une hauteur compacte.
+- La vérification de release doit rester fiable malgré le cache navigateur ou
+  un refresh.
+
+## Versions, releases et changelog
+
+- Version affichée en bas de chaque page.
+- Versionnement en `0.0.x`.
+- Releases GitHub utiles et détaillées.
+- Ne pas incrémenter la version si le commit ne modifie pas l'application
+  buildée.
+- Changelog en français au format Keep a Changelog.
+- Chaque version doit inclure la date et l'heure.
+- Le changelog doit détailler les commits, sans ligne vide inutile.
+- Les anciennes releases GitHub doivent être rétro-remplies avec du contenu
+  utile.
+- Les notes de release doivent être générées depuis les commits.
+- Éviter les commits de travail absurdes du type
+  `change: bump version to 0.0.x` sans valeur.
+- Utiliser des commits atomiques avec les préfixes `new`, `change`, `fixe`,
+  `refact`, `del`.
+- La reconstruction du changelog doit partir des commits réels, avec du détail
+  utile.
+- Les entrées de version doivent garder l'ordre chronologique et les sections
+  pertinentes.
+- Les releases GitHub doivent reprendre le même niveau de détail que le
+  changelog local.
+- Quand un gros effort a été consacré au changelog, il faut conserver
+  l'historique détaillé.
+- Les blocs de version doivent refléter les vraies améliorations produit :
+  UI, sécurité, releases, workflows et corrections de bugs.
 
 ## Règle finale
-Un agent qui suit uniquement ce fichier doit être capable de reconstruire une application **fonctionnellement équivalente** à Z-Services, 
-avec les mêmes choix UX, sécurité, versions, releases, validation visuelle et workflow de maintenance.
 
-
-
-
+Un agent qui suit uniquement ce fichier doit pouvoir reconstruire une
+application fonctionnellement équivalente à Z-Services, avec les mêmes choix
+UX, sécurité, versions, releases, validation visuelle et workflow de
+maintenance.
