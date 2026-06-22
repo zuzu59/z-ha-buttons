@@ -1,6 +1,6 @@
 # z-ha-buttons
 
-zf260622.1533, zf260622.1625
+zf260622.1533, zf260622.1838
 
 ## But
 
@@ -169,7 +169,7 @@ Les dates sont affichées, mais pas modifiables.
 Règles associées :
 
 - Ne jamais valider une UI uniquement via le DOM.
-- Conserver toutes les captures dans `copies-d-ecrans/`.
+- Conserver toutes les captures dans `copies-d-ecrans/` et elles doivent avoir un timestamp yymmdd.hhmm.
 - Le serveur local de validation doit utiliser `host 0.0.0.0` et le port
   `4173`.
 - Si un autre port existe, le fermer pour n'en garder qu'un seul.
