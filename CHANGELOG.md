@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.3] - 2026-06-22 22:07
+
+### Modifié
+
+- Le bouton `Annuler` de la fenêtre de déverrouillage ferme enfin le modal.
+- L’état déverrouillé est mémorisé pendant la session via `sessionStorage`.
+- Le retour à l’accueil ne redemande plus systématiquement le mot de passe.
+- Amélioration du flux de verrouillage avec un vrai dialogue réouvrable.
+
 ## [0.0.2] - 2026-06-22 18:44
 
 ### Modifié

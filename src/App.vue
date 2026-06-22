@@ -7,6 +7,7 @@ const router = useRouter();
 const menuOpen = ref(false);
 const unlockPassword = ref('');
 const unlockError = ref('');
+const unlockDialogOpen = ref(true);
 
 const menuEntries = [
   { to: '/help', label: 'Help' },
@@ -24,9 +25,20 @@ async function submitUnlock() {
   try {
     await unlockApp(unlockPassword.value);
     unlockPassword.value = '';
+    unlockDialogOpen.value = false;
   } catch (error) {
     unlockError.value = error?.message || 'Impossible de déverrouiller';
   }
+}
+
+function cancelUnlock() {
+  unlockPassword.value = '';
+  unlockError.value = '';
+  unlockDialogOpen.value = false;
+}
+
+function openUnlockDialog() {
+  unlockDialogOpen.value = true;
 }
 
 function closeMenu() {
@@ -60,7 +72,7 @@ onBeforeUnmount(() => {
           v-if="appState.config"
           class="ghost compact"
           type="button"
-          @click="appState.locked ? null : lockApp()"
+          @click="appState.locked ? openUnlockDialog() : lockApp()"
         >
           {{ appState.locked ? 'Verrouillé' : 'Verrouiller' }}
         </button>
@@ -94,7 +106,7 @@ onBeforeUnmount(() => {
       </nav>
     </div>
 
-    <div v-if="appState.config && appState.locked" class="backdrop lock-layer">
+    <div v-if="appState.config && appState.locked && unlockDialogOpen" class="backdrop lock-layer">
       <form class="panel lock-panel" autocomplete="off" @submit.prevent="submitUnlock">
         <h2>Déverrouillage</h2>
         <p>Entrez le mot de passe maître pour accéder au token Home Assistant.</p>
@@ -105,7 +117,7 @@ onBeforeUnmount(() => {
         <p v-if="unlockError" class="error">{{ unlockError }}</p>
         <div class="actions">
           <button class="primary" type="submit">Déverrouiller</button>
-          <button class="ghost" type="button" @click="lockApp">Annuler</button>
+          <button class="ghost" type="button" @click="cancelUnlock">Annuler</button>
         </div>
       </form>
     </div>

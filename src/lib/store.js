@@ -22,7 +22,7 @@ import {
 import { fromCsv, toCsv } from './csv.js';
 
 const CONFIG_KEY = 'ha-config';
-const INACTIVITY_KEY = 'ui-state';
+const SESSION_UNLOCK_KEY = 'zha-unlocked-token';
 const DEFAULT_LOCK_MINUTES = 15;
 
 function defaultButtonOrder(buttons) {
@@ -109,7 +109,14 @@ export async function initialiseStore() {
     syncFromRecord(configRecord?.value || null);
     const buttons = await getAllButtons();
     appState.buttons = buttons.map(normalizeButton);
-    await refreshRemoteStates(false);
+    const restoredToken = restoreUnlockedToken();
+    if (restoredToken && appState.config) {
+      appState.config.unlockedTokenBytes = new Uint8Array(utf8ToBytes(restoredToken));
+      appState.locked = false;
+      await refreshRemoteStates(true);
+    } else {
+      clearUnlockedToken();
+    }
     registerActivity();
     startAutoLockTimer();
     appState.ready = true;
@@ -155,6 +162,30 @@ function scheduleAutoLock() {
   }
 }
 
+function restoreUnlockedToken() {
+  try {
+    return sessionStorage.getItem(SESSION_UNLOCK_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+function saveUnlockedToken(token) {
+  try {
+    sessionStorage.setItem(SESSION_UNLOCK_KEY, token);
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function clearUnlockedToken() {
+  try {
+    sessionStorage.removeItem(SESSION_UNLOCK_KEY);
+  } catch {
+    // ignore storage failures
+  }
+}
+
 export async function saveConfiguration({ serverUrl, token, masterPassword, lockMinutes }) {
   clearTransientMessages();
   const runtime = { serverUrl: serverUrl.trim(), token };
@@ -177,6 +208,7 @@ export async function saveConfiguration({ serverUrl, token, masterPassword, lock
   const tokenBytes = utf8ToBytes(token);
   appState.config.unlockedTokenBytes = new Uint8Array(tokenBytes);
   wipe(tokenBytes);
+  saveUnlockedToken(token);
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();
@@ -188,8 +220,10 @@ export async function unlockApp(masterPassword) {
     throw new Error('Aucune configuration');
   }
   const tokenBytes = await decryptBytes(appState.config.tokenSecret, masterPassword);
+  const token = bytesToUtf8(tokenBytes);
   appState.config.unlockedTokenBytes = new Uint8Array(tokenBytes);
   wipe(tokenBytes);
+  saveUnlockedToken(token);
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();
@@ -203,6 +237,7 @@ export function lockApp() {
   if (appState.config) {
     appState.config.unlockedTokenBytes = null;
   }
+  clearUnlockedToken();
   appState.locked = true;
   setInfo('Application verrouillée');
 }
