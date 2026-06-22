@@ -2,6 +2,18 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.2] - 2026-06-22 18:44
+
+### Modifié
+
+- Validation de connexion Home Assistant avant enregistrement.
+- Ajout d’un bouton de test pour vérifier `/api/`.
+- Affichage du nom de l’instance Home Assistant dans la configuration.
+- Messages d’erreur plus explicites pour les statuts HTTP et les échecs
+  réseau/CORS.
+- Correction de l’enregistrement des nouveaux boutons dans Dexie.
+- Captures d’écran désormais horodatées au format `yymmdd.hhmm`.
+
 ## [0.0.1] - 2026-06-22 18:24
 
 ### Ajouté

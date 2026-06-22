@@ -13,8 +13,10 @@ import {
 import {
   callEntityToggle,
   fetchEntityState,
+  fetchHomeAssistantConfig,
   fetchStates,
   getEntityDomain,
+  pingHomeAssistant,
   setLightValues,
 } from './homeAssistant.js';
 import { fromCsv, toCsv } from './csv.js';
@@ -88,6 +90,7 @@ function syncFromRecord(record) {
 
   appState.config = {
     serverUrl: record.serverUrl,
+    homeAssistantName: record.homeAssistantName || '',
     tokenSecret: record.tokenSecret,
     lockMinutes: record.lockMinutes || DEFAULT_LOCK_MINUTES,
     updatedAt: record.updatedAt,
@@ -154,12 +157,16 @@ function scheduleAutoLock() {
 
 export async function saveConfiguration({ serverUrl, token, masterPassword, lockMinutes }) {
   clearTransientMessages();
+  const runtime = { serverUrl: serverUrl.trim(), token };
+  await pingHomeAssistant(runtime);
+  const haConfig = await fetchHomeAssistantConfig(runtime);
   const salt = createSalt();
   const tokenSecret = await encryptText(token, masterPassword, salt);
   await putSetting({
     key: CONFIG_KEY,
     value: {
       serverUrl: serverUrl.trim(),
+      homeAssistantName: haConfig.location_name || '',
       tokenSecret,
       lockMinutes: Number(lockMinutes || DEFAULT_LOCK_MINUTES),
       updatedAt: nowIso(),
@@ -173,7 +180,7 @@ export async function saveConfiguration({ serverUrl, token, masterPassword, lock
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();
-  setInfo('Configuration enregistrée');
+  setInfo(`Configuration enregistrée${haConfig.location_name ? ` · ${haConfig.location_name}` : ''}`);
 }
 
 export async function unlockApp(masterPassword) {

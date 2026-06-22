@@ -17,20 +17,45 @@ function authHeaders(token) {
       };
 }
 
+function errorMessage(response) {
+  const map = {
+    400: 'Requête Home Assistant invalide',
+    401: 'Token Home Assistant invalide ou expiré',
+    404: 'URL Home Assistant incorrecte',
+    405: 'Méthode Home Assistant non autorisée',
+  };
+  return map[response.status] || `Home Assistant ${response.status}`;
+}
+
 export async function haFetch(config, path, options = {}) {
   const baseUrl = cleanBaseUrl(config.serverUrl);
-  const response = await fetch(`${baseUrl}${path}`, {
-    cache: 'no-store',
-    ...options,
-    headers: {
-      ...authHeaders(config.token),
-      ...(options.headers || {}),
-    },
-  });
+  let response;
+  try {
+    response = await fetch(`${baseUrl}${path}`, {
+      cache: 'no-store',
+      ...options,
+      headers: {
+        ...authHeaders(config.token),
+        ...(options.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error('Impossible de joindre Home Assistant (CORS ou réseau)');
+  }
   if (!response.ok) {
-    throw new Error(`Home Assistant ${response.status}`);
+    throw new Error(errorMessage(response));
   }
   return response;
+}
+
+export async function pingHomeAssistant(config) {
+  const response = await haFetch(config, '/api/');
+  return response.json();
+}
+
+export async function fetchHomeAssistantConfig(config) {
+  const response = await haFetch(config, '/api/config');
+  return response.json();
 }
 
 export async function fetchStates(config) {

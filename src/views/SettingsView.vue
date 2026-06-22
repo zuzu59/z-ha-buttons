@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref, watchEffect } from 'vue';
+import { pingHomeAssistant } from '../lib/homeAssistant.js';
 import { appState, saveConfiguration } from '../lib/store.js';
 
 const form = reactive({
@@ -19,6 +20,24 @@ watchEffect(() => {
   }
 });
 
+async function testConnection() {
+  error.value = '';
+  status.value = '';
+  if (!form.serverUrl.trim() || !form.token.trim()) {
+    error.value = 'URL et token requis';
+    return;
+  }
+  try {
+    const response = await pingHomeAssistant({
+      serverUrl: form.serverUrl,
+      token: form.token,
+    });
+    status.value = response.message || 'Connexion Home Assistant OK';
+  } catch (cause) {
+    error.value = cause?.message || 'Connexion Home Assistant impossible';
+  }
+}
+
 async function submit() {
   error.value = '';
   status.value = '';
@@ -34,16 +53,20 @@ async function submit() {
     error.value = 'Les mots de passe ne correspondent pas';
     return;
   }
-  await saveConfiguration({
-    serverUrl: form.serverUrl,
-    token: form.token,
-    masterPassword: form.masterPassword,
-    lockMinutes: form.lockMinutes,
-  });
-  form.token = '';
-  form.masterPassword = '';
-  form.confirmPassword = '';
-  status.value = 'Configuration enregistrée';
+  try {
+    await saveConfiguration({
+      serverUrl: form.serverUrl,
+      token: form.token,
+      masterPassword: form.masterPassword,
+      lockMinutes: form.lockMinutes,
+    });
+    form.token = '';
+    form.masterPassword = '';
+    form.confirmPassword = '';
+    status.value = 'Configuration enregistrée';
+  } catch (cause) {
+    error.value = cause?.message || 'Enregistrement impossible';
+  }
 }
 </script>
 
@@ -74,6 +97,7 @@ async function submit() {
           <input v-model.number="form.lockMinutes" type="number" min="1" max="180" />
         </label>
         <div class="actions">
+          <button class="primary" type="button" @click="testConnection">Tester la connexion</button>
           <button class="primary" type="submit">Enregistrer</button>
         </div>
         <p v-if="error" class="error">{{ error }}</p>
@@ -84,6 +108,7 @@ async function submit() {
     <div v-if="appState.config" class="panel compact-panel">
       <h2>Résumé</h2>
       <p>{{ appState.config.serverUrl }}</p>
+      <p v-if="appState.config.homeAssistantName">Maison : {{ appState.config.homeAssistantName }}</p>
       <p>Verrouillage auto : {{ appState.config.lockMinutes }} min</p>
       <p>{{ appState.locked ? 'Application verrouillée' : 'Application déverrouillée' }}</p>
     </div>
