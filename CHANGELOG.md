@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.10] - 2026-06-22 23:09
+
+### Modifié
+
+- L’application attend désormais l’initialisation complète avant d’être
+  montée.
+- Le modal de déverrouillage n’apparaît plus brièvement puis disparaît au
+  reload.
+- La restauration de l’état au démarrage est effectuée avant le premier
+  rendu.
+
 ## [0.0.9] - 2026-06-22 22:59
 
 ### Modifié

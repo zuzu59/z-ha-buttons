@@ -4,5 +4,9 @@ import { router } from './router.js';
 import './styles.css';
 import { initialiseStore } from './lib/store.js';
 
-createApp(App).use(router).mount('#app');
-initialiseStore();
+async function bootstrap() {
+  await initialiseStore();
+  createApp(App).use(router).mount('#app');
+}
+
+bootstrap();
