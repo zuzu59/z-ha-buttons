@@ -1,4 +1,23 @@
 # z-ha-buttons
-zf260622.1642
 
-Petite appli PWA pour allumer éteindre facilement des appareils sur Home Assistant en utilisant l'API
+PWA mobile-first pour piloter des boutons Home Assistant.
+
+## Démarrage
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Notes
+
+- Application hors ligne.
+- Base locale via Dexie.
+- Secrets chiffrés via Web Crypto.
