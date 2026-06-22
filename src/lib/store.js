@@ -252,8 +252,7 @@ export async function refreshRemoteStates(updateButtons = true) {
 export async function toggleButtonState(button) {
   registerActivity();
   const runtime = getRuntimeConfig();
-  const target = button.state === 'on' ? 'off' : 'on';
-  await callEntityToggle(runtime, button.entityId, target);
+  await callEntityToggle(runtime, button.entityId);
   await refreshButtonState(button.id);
 }
 

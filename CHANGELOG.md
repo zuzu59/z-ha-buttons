@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.11] - 2026-06-22 23:40
+
+### Modifié
+
+- Les appels Home Assistant de l’application passent désormais par le
+  WebSocket API du navigateur.
+- Le bouton d’état fonctionne même sans CORS REST sur l’instance HA.
+- Le test de connexion utilise le même canal fiable que les actions de
+  contrôle.
+- Le clic sur un bouton déclenche enfin un toggle réel depuis l’interface.
+
 ## [0.0.10] - 2026-06-22 23:09
 
 ### Modifié

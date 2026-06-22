@@ -27,6 +27,13 @@ function errorMessage(response) {
   return map[response.status] || `Home Assistant ${response.status}`;
 }
 
+function shouldFallbackToWebSocket(error) {
+  const message = String(error?.message || error || '');
+  return /CORS|Failed to fetch|NetworkError|Impossible de joindre Home Assistant/i.test(
+    message,
+  );
+}
+
 export async function haFetch(config, path, options = {}) {
   const baseUrl = cleanBaseUrl(config.serverUrl);
   let response;
@@ -48,24 +55,97 @@ export async function haFetch(config, path, options = {}) {
   return response;
 }
 
+function websocketUrl(baseUrl) {
+  const url = new URL(cleanBaseUrl(baseUrl));
+  url.pathname = '/api/websocket';
+  url.search = '';
+  url.hash = '';
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+  return url.toString();
+}
+
+function wsRequest(config, message) {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(websocketUrl(config.serverUrl));
+    const requestId = Math.floor(Math.random() * 1_000_000_000);
+    let authenticated = false;
+    let settled = false;
+
+    const finish = (error, result) => {
+      if (settled) return;
+      settled = true;
+      try {
+        socket.close();
+      } catch {
+        // ignore close failures
+      }
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    };
+
+    socket.onerror = () => {
+      finish(new Error('Impossible de joindre Home Assistant (WebSocket)'));
+    };
+
+    socket.onmessage = (event) => {
+      let data;
+      try {
+        data = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      if (data.type === 'auth_required') {
+        socket.send(JSON.stringify({ type: 'auth', access_token: config.token }));
+        return;
+      }
+
+      if (data.type === 'auth_ok') {
+        authenticated = true;
+        socket.send(JSON.stringify({ id: requestId, ...message }));
+        return;
+      }
+
+      if (data.type === 'auth_invalid') {
+        finish(new Error('Token Home Assistant invalide ou expiré'));
+        return;
+      }
+
+      if (!authenticated || data.id !== requestId) {
+        return;
+      }
+
+      if (data.type === 'result') {
+        if (data.success === false) {
+          finish(new Error(data.error?.message || 'Home Assistant a refusé la requête'));
+          return;
+        }
+        finish(null, data.result);
+        return;
+      }
+    };
+  });
+}
+
 export async function pingHomeAssistant(config) {
-  const response = await haFetch(config, '/api/');
-  return response.json();
+  await wsRequest(config, { type: 'get_config' });
+  return { message: 'API running.' };
 }
 
 export async function fetchHomeAssistantConfig(config) {
-  const response = await haFetch(config, '/api/config');
-  return response.json();
+  return wsRequest(config, { type: 'get_config' });
 }
 
 export async function fetchStates(config) {
-  const response = await haFetch(config, '/api/states');
-  return response.json();
+  return wsRequest(config, { type: 'get_states' });
 }
 
 export async function fetchEntityState(config, entityId) {
-  const response = await haFetch(config, `/api/states/${encodeURIComponent(entityId)}`);
-  return response.json();
+  const states = await wsRequest(config, { type: 'get_states' });
+  return states.find((entry) => entry.entity_id === entityId) || null;
 }
 
 function serviceForEntity(entityId, nextState) {
@@ -79,19 +159,25 @@ function serviceForEntity(entityId, nextState) {
   return nextState === 'on' ? 'turn_on' : 'turn_off';
 }
 
+async function callService(config, domain, service, payload) {
+  return wsRequest(config, {
+    type: 'call_service',
+    domain,
+    service,
+    service_data: payload,
+  });
+}
+
 export async function callEntityToggle(config, entityId, nextState = 'toggle', data = {}) {
   const domain = getEntityDomain(entityId);
   const service = nextState === 'toggle' ? 'toggle' : serviceForEntity(entityId, nextState);
   const body = { entity_id: entityId, ...data };
-  await haFetch(config, `/api/services/${domain}/${service}`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
+  await callService(config, domain, service, body);
 }
 
 export async function setLightValues(config, entityId, data) {
-  await haFetch(config, '/api/services/light/turn_on', {
-    method: 'POST',
-    body: JSON.stringify({ entity_id: entityId, ...data }),
+  await callService(config, 'light', 'turn_on', {
+    entity_id: entityId,
+    ...data,
   });
 }
