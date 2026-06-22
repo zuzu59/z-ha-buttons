@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
+import { forceRefreshPwa } from './lib/pwa.js';
 import { appState, lockApp, registerActivity, unlockApp } from './lib/store.js';
 
 const router = useRouter();
@@ -15,6 +16,7 @@ const menuEntries = [
   { to: '/buttons/new', label: 'Ajout d’un bouton' },
   { to: '/settings', label: 'Configuration' },
   { to: '/sync', label: 'Exportation / importation CSV' },
+  { action: forceRefreshPwa, label: 'Force refresh PWA' },
   { to: '/about', label: 'About' },
 ];
 
@@ -43,6 +45,13 @@ function openUnlockDialog() {
 
 function closeMenu() {
   menuOpen.value = false;
+}
+
+async function activateMenuEntry(entry) {
+  closeMenu();
+  if (entry.action) {
+    await entry.action();
+  }
 }
 
 function gotoHome() {
@@ -94,15 +103,24 @@ onBeforeUnmount(() => {
 
     <div v-if="menuOpen" class="backdrop" @click.self="closeMenu">
       <nav class="menu-panel">
-        <RouterLink
-          v-for="entry in menuEntries"
-          :key="entry.to"
-          :to="entry.to"
-          class="menu-item"
-          @click="closeMenu"
-        >
-          {{ entry.label }}
-        </RouterLink>
+        <template v-for="entry in menuEntries" :key="entry.label">
+          <RouterLink
+            v-if="entry.to"
+            :to="entry.to"
+            class="menu-item"
+            @click="closeMenu"
+          >
+            {{ entry.label }}
+          </RouterLink>
+          <button
+            v-else
+            class="menu-item menu-action"
+            type="button"
+            @click="activateMenuEntry(entry)"
+          >
+            {{ entry.label }}
+          </button>
+        </template>
       </nav>
     </div>
 

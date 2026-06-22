@@ -2,6 +2,19 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.6] - 2026-06-22 22:37
+
+### Ajouté
+
+- Entrée `Force refresh PWA` dans le hamburger.
+- Nettoyage des caches navigateur et désenregistrement du service worker.
+- Rechargement avec paramètre de cache-busting pour forcer une version
+  fraîche.
+
+### Modifié
+
+- Amélioration du confort de maintenance lors des effets de cache PWA.
+
 ## [0.0.5] - 2026-06-22 22:28
 
 ### Modifié

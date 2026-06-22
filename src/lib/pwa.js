@@ -1,0 +1,17 @@
+export async function forceRefreshPwa() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } finally {
+    const url = new URL(window.location.href);
+    url.searchParams.set('forceRefresh', String(Date.now()));
+    window.location.replace(url.toString());
+  }
+}

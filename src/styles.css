@@ -303,6 +303,14 @@ input:disabled {
   border-bottom: 1px solid rgba(148,163,184,.1);
 }
 
+.menu-action {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
 .menu-item:last-child { border-bottom: 0; }
 .menu-item:hover { background: rgba(255,255,255,.04); }
 
