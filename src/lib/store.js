@@ -277,9 +277,13 @@ export async function saveButton(button) {
     createdAt: button.createdAt || nowIso(),
     order: button.order || defaultButtonOrder(appState.buttons),
   });
-  await saveButtonInDb(normalized);
+  const record = { ...normalized };
+  if (record.id == null) {
+    delete record.id;
+  }
+  const id = await saveButtonInDb(record);
   await reloadButtons();
-  return normalized;
+  return { ...record, id };
 }
 
 export async function removeButton(id) {

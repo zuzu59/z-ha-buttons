@@ -66,9 +66,14 @@ async function submit() {
     createdAt: form.createdAt,
     order: form.order,
   };
-  const saved = await saveButton(payload);
-  status.value = 'Bouton enregistré';
-  router.replace(`/buttons/${saved.id}`);
+
+  try {
+    const saved = await saveButton(payload);
+    status.value = 'Bouton enregistré';
+    await router.replace(`/buttons/${saved.id}`);
+  } catch (cause) {
+    error.value = cause?.message || 'Enregistrement impossible';
+  }
 }
 </script>
 
