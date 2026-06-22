@@ -85,6 +85,24 @@ function clearTransientMessages() {
   appState.info = '';
 }
 
+async function persistConfigValue(patch) {
+  const current = (await getSetting(CONFIG_KEY))?.value;
+  if (!current) {
+    throw new Error('Aucune configuration');
+  }
+  const next = {
+    ...current,
+    ...patch,
+    updatedAt: nowIso(),
+  };
+  await putSetting({
+    key: CONFIG_KEY,
+    value: next,
+    updatedAt: next.updatedAt,
+  });
+  syncFromRecord(next);
+}
+
 function syncFromRecord(record) {
   if (!record) {
     appState.config = null;
@@ -186,6 +204,7 @@ export async function unlockApp(masterPassword) {
     throw new Error('Aucune configuration');
   }
   const token = await unlockWithMasterPassword(masterPassword);
+  await persistConfigValue({ masterPassword });
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();

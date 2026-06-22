@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.5] - 2026-06-22 22:28
+
+### Modifié
+
+- Le mot de passe maître est désormais réécrit dans la base à chaque
+  déverrouillage.
+- Le reload d’une session déjà déverrouillée reste bien déverrouillé.
+- Le comportement de restauration au démarrage est fiabilisé.
+
 ## [0.0.4] - 2026-06-22 22:20
 
 ### Modifié
