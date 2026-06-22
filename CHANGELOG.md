@@ -2,6 +2,27 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.9] - 2026-06-22 22:59
+
+### Modifié
+
+- Le déverrouillage au démarrage ne dépend plus d’une requête réseau.
+- L’application reste déverrouillée même si Home Assistant est indisponible.
+- L’ouverture après reload ne retombe plus en mode verrouillé à cause du
+  backend.
+- L’enregistrement de la configuration continue de fonctionner sans test de
+  connexion.
+
+## [0.0.8] - 2026-06-22 22:55
+
+### Modifié
+
+- L’enregistrement de la configuration ne teste plus la connexion Home
+  Assistant.
+- Il est désormais possible de configurer l’application avec un serveur
+  momentanément inactif.
+- Le bouton `Tester la connexion` reste le seul point de validation réseau.
+
 ## [0.0.7] - 2026-06-22 22:47
 
 ### Ajouté

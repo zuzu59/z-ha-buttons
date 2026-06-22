@@ -22,10 +22,8 @@ import {
 import {
   callEntityToggle,
   fetchEntityState,
-  fetchHomeAssistantConfig,
   fetchStates,
   getEntityDomain,
-  pingHomeAssistant,
   setLightValues,
 } from './homeAssistant.js';
 import { fromCsv, toCsv } from './csv.js';
@@ -150,7 +148,6 @@ export async function initialiseStore() {
       try {
         await unlockWithMasterPassword(appState.config.masterPassword);
         appState.locked = false;
-        await refreshRemoteStates(true);
       } catch (error) {
         setError(error?.message || 'Impossible de restaurer le déverrouillage');
         appState.locked = true;
@@ -171,16 +168,14 @@ export function registerActivity() {
 
 export async function saveConfiguration({ serverUrl, token, masterPassword, lockMinutes }) {
   clearTransientMessages();
-  const runtime = { serverUrl: serverUrl.trim(), token };
-  await pingHomeAssistant(runtime);
-  const haConfig = await fetchHomeAssistantConfig(runtime);
+  const existing = (await getSetting(CONFIG_KEY))?.value || {};
   const salt = createSalt();
   const tokenSecret = await encryptText(token, masterPassword, salt);
   await putSetting({
     key: CONFIG_KEY,
     value: {
       serverUrl: serverUrl.trim(),
-      homeAssistantName: haConfig.location_name || '',
+      homeAssistantName: existing.homeAssistantName || '',
       tokenSecret,
       masterPassword,
       lockMinutes: Number(lockMinutes || DEFAULT_LOCK_MINUTES),
@@ -194,9 +189,8 @@ export async function saveConfiguration({ serverUrl, token, masterPassword, lock
   appState.config.masterPassword = masterPassword;
   wipe(tokenBytes);
   appState.locked = false;
-  await refreshRemoteStates(true);
   registerActivity();
-  setInfo(`Configuration enregistrée${haConfig.location_name ? ` · ${haConfig.location_name}` : ''}`);
+  setInfo('Configuration enregistrée');
 }
 
 export async function unlockApp(masterPassword) {
@@ -206,7 +200,6 @@ export async function unlockApp(masterPassword) {
   const token = await unlockWithMasterPassword(masterPassword);
   await persistConfigValue({ masterPassword });
   appState.locked = false;
-  await refreshRemoteStates(true);
   registerActivity();
   setInfo('Application déverrouillée');
   return token;
