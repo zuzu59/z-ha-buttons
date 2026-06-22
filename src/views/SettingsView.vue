@@ -8,7 +8,6 @@ const form = reactive({
   token: '',
   masterPassword: '',
   confirmPassword: '',
-  lockMinutes: 15,
 });
 const status = ref('');
 const error = ref('');
@@ -16,7 +15,6 @@ const error = ref('');
 watchEffect(() => {
   if (appState.config) {
     form.serverUrl = appState.config.serverUrl || '';
-    form.lockMinutes = appState.config.lockMinutes || 15;
   }
 });
 
@@ -58,7 +56,6 @@ async function submit() {
       serverUrl: form.serverUrl,
       token: form.token,
       masterPassword: form.masterPassword,
-      lockMinutes: form.lockMinutes,
     });
     form.token = '';
     form.masterPassword = '';
@@ -92,10 +89,6 @@ async function submit() {
           Confirmation du mot de passe
           <input v-model="form.confirmPassword" type="password" autocomplete="new-password" />
         </label>
-        <label>
-          Verrouillage auto (minutes)
-          <input v-model.number="form.lockMinutes" type="number" min="1" max="180" />
-        </label>
         <div class="actions">
           <button class="primary" type="button" @click="testConnection">Tester la connexion</button>
           <button class="primary" type="submit">Enregistrer</button>
@@ -109,7 +102,6 @@ async function submit() {
       <h2>Résumé</h2>
       <p>{{ appState.config.serverUrl }}</p>
       <p v-if="appState.config.homeAssistantName">Maison : {{ appState.config.homeAssistantName }}</p>
-      <p>Verrouillage auto : {{ appState.config.lockMinutes }} min</p>
       <p>{{ appState.locked ? 'Application verrouillée' : 'Application déverrouillée' }}</p>
     </div>
   </section>

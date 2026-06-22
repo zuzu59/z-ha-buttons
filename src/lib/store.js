@@ -1,5 +1,14 @@
 import { reactive } from 'vue';
-import { db, getAllButtons, getSetting, putSetting, replaceAll, saveButton as saveButtonInDb, deleteButton as deleteButtonInDb, getButton } from './db.js';
+import {
+  db,
+  deleteButton as deleteButtonInDb,
+  getAllButtons,
+  getButton,
+  getSetting,
+  putSetting,
+  replaceAll,
+  saveButton as saveButtonInDb,
+} from './db.js';
 import {
   bytesToUtf8,
   createSalt,
@@ -22,7 +31,6 @@ import {
 import { fromCsv, toCsv } from './csv.js';
 
 const CONFIG_KEY = 'ha-config';
-const SESSION_UNLOCK_KEY = 'zha-unlocked-token';
 const DEFAULT_LOCK_MINUTES = 15;
 
 function defaultButtonOrder(buttons) {
@@ -64,9 +72,6 @@ export const appState = reactive({
   lockMinutes: DEFAULT_LOCK_MINUTES,
 });
 
-let inactivityTimer = null;
-let autoLockTimer = null;
-
 function setInfo(message) {
   appState.info = message;
 }
@@ -92,6 +97,7 @@ function syncFromRecord(record) {
     serverUrl: record.serverUrl,
     homeAssistantName: record.homeAssistantName || '',
     tokenSecret: record.tokenSecret,
+    masterPassword: record.masterPassword || '',
     lockMinutes: record.lockMinutes || DEFAULT_LOCK_MINUTES,
     updatedAt: record.updatedAt,
     unlockedTokenBytes: null,
@@ -99,6 +105,18 @@ function syncFromRecord(record) {
   appState.lockMinutes = appState.config.lockMinutes;
   appState.setupNeeded = false;
   appState.locked = true;
+}
+
+async function unlockWithMasterPassword(masterPassword) {
+  if (!appState.config?.tokenSecret) {
+    throw new Error('Aucune configuration');
+  }
+  const tokenBytes = await decryptBytes(appState.config.tokenSecret, masterPassword);
+  const token = bytesToUtf8(tokenBytes);
+  appState.config.unlockedTokenBytes = new Uint8Array(tokenBytes);
+  appState.config.masterPassword = masterPassword;
+  wipe(tokenBytes);
+  return token;
 }
 
 export async function initialiseStore() {
@@ -109,16 +127,18 @@ export async function initialiseStore() {
     syncFromRecord(configRecord?.value || null);
     const buttons = await getAllButtons();
     appState.buttons = buttons.map(normalizeButton);
-    const restoredToken = restoreUnlockedToken();
-    if (restoredToken && appState.config) {
-      appState.config.unlockedTokenBytes = new Uint8Array(utf8ToBytes(restoredToken));
-      appState.locked = false;
-      await refreshRemoteStates(true);
-    } else {
-      clearUnlockedToken();
+
+    if (appState.config?.masterPassword) {
+      try {
+        await unlockWithMasterPassword(appState.config.masterPassword);
+        appState.locked = false;
+        await refreshRemoteStates(true);
+      } catch (error) {
+        setError(error?.message || 'Impossible de restaurer le déverrouillage');
+        appState.locked = true;
+      }
     }
-    registerActivity();
-    startAutoLockTimer();
+
     appState.ready = true;
   } catch (error) {
     setError(error?.message || 'Erreur d’initialisation');
@@ -129,61 +149,6 @@ export async function initialiseStore() {
 
 export function registerActivity() {
   appState.lastActivityAt = nowIso();
-  if (inactivityTimer) {
-    window.clearTimeout(inactivityTimer);
-  }
-  inactivityTimer = window.setTimeout(() => {
-    scheduleAutoLock();
-  }, 30_000);
-}
-
-function startAutoLockTimer() {
-  if (autoLockTimer) {
-    window.clearInterval(autoLockTimer);
-  }
-  autoLockTimer = window.setInterval(() => {
-    if (!appState.locked && appState.config) {
-      const elapsed = Date.now() - new Date(appState.lastActivityAt).getTime();
-      const limit = (appState.lockMinutes || DEFAULT_LOCK_MINUTES) * 60_000;
-      if (elapsed >= limit) {
-        lockApp();
-      }
-    }
-  }, 10_000);
-}
-
-function scheduleAutoLock() {
-  if (!appState.locked && appState.config) {
-    const elapsed = Date.now() - new Date(appState.lastActivityAt).getTime();
-    const limit = (appState.lockMinutes || DEFAULT_LOCK_MINUTES) * 60_000;
-    if (elapsed >= limit) {
-      lockApp();
-    }
-  }
-}
-
-function restoreUnlockedToken() {
-  try {
-    return sessionStorage.getItem(SESSION_UNLOCK_KEY) || '';
-  } catch {
-    return '';
-  }
-}
-
-function saveUnlockedToken(token) {
-  try {
-    sessionStorage.setItem(SESSION_UNLOCK_KEY, token);
-  } catch {
-    // ignore storage failures
-  }
-}
-
-function clearUnlockedToken() {
-  try {
-    sessionStorage.removeItem(SESSION_UNLOCK_KEY);
-  } catch {
-    // ignore storage failures
-  }
 }
 
 export async function saveConfiguration({ serverUrl, token, masterPassword, lockMinutes }) {
@@ -199,6 +164,7 @@ export async function saveConfiguration({ serverUrl, token, masterPassword, lock
       serverUrl: serverUrl.trim(),
       homeAssistantName: haConfig.location_name || '',
       tokenSecret,
+      masterPassword,
       lockMinutes: Number(lockMinutes || DEFAULT_LOCK_MINUTES),
       updatedAt: nowIso(),
     },
@@ -207,8 +173,8 @@ export async function saveConfiguration({ serverUrl, token, masterPassword, lock
   syncFromRecord((await getSetting(CONFIG_KEY)).value);
   const tokenBytes = utf8ToBytes(token);
   appState.config.unlockedTokenBytes = new Uint8Array(tokenBytes);
+  appState.config.masterPassword = masterPassword;
   wipe(tokenBytes);
-  saveUnlockedToken(token);
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();
@@ -219,15 +185,12 @@ export async function unlockApp(masterPassword) {
   if (!appState.config?.tokenSecret) {
     throw new Error('Aucune configuration');
   }
-  const tokenBytes = await decryptBytes(appState.config.tokenSecret, masterPassword);
-  const token = bytesToUtf8(tokenBytes);
-  appState.config.unlockedTokenBytes = new Uint8Array(tokenBytes);
-  wipe(tokenBytes);
-  saveUnlockedToken(token);
+  const token = await unlockWithMasterPassword(masterPassword);
   appState.locked = false;
   await refreshRemoteStates(true);
   registerActivity();
   setInfo('Application déverrouillée');
+  return token;
 }
 
 export function lockApp() {
@@ -237,7 +200,6 @@ export function lockApp() {
   if (appState.config) {
     appState.config.unlockedTokenBytes = null;
   }
-  clearUnlockedToken();
   appState.locked = true;
   setInfo('Application verrouillée');
 }

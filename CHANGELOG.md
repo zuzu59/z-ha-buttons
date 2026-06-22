@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.4] - 2026-06-22 22:20
+
+### Modifié
+
+- Le mot de passe maître est maintenant conservé dans la base locale.
+- L’application se déverrouille automatiquement au rechargement.
+- Suppression du mécanisme de timeout de verrouillage automatique.
+- Le flux de verrouillage est simplifié et reste cohérent au refresh.
+
 ## [0.0.3] - 2026-06-22 22:07
 
 ### Modifié
