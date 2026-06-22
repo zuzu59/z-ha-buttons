@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import { forceRefreshPwa } from './lib/pwa.js';
-import { appState, lockApp, registerActivity, unlockApp } from './lib/store.js';
+import { appState, lockApp, registerActivity, resetFactory, unlockApp } from './lib/store.js';
 
 const router = useRouter();
 const menuOpen = ref(false);
@@ -11,6 +11,7 @@ const unlockError = ref('');
 const unlockDialogOpen = ref(true);
 
 const menuEntries = [
+  { action: resetFactoryAndHome, label: 'Reset factory' },
   { to: '/help', label: 'Help' },
   { to: '/order', label: 'Ordre d’affichage des boutons' },
   { to: '/buttons/new', label: 'Ajout d’un bouton' },
@@ -45,6 +46,14 @@ function openUnlockDialog() {
 
 function closeMenu() {
   menuOpen.value = false;
+}
+
+async function resetFactoryAndHome() {
+  if (!window.confirm('Réinitialiser complètement l’application ?')) {
+    return;
+  }
+  await resetFactory();
+  router.push('/');
 }
 
 async function activateMenuEntry(entry) {

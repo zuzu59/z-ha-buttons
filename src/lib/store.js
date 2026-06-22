@@ -356,6 +356,21 @@ export async function importDatabaseCsv(text) {
   await initialiseStore();
 }
 
+export async function resetFactory() {
+  clearTransientMessages();
+  await replaceAll({ settings: [], buttons: [] });
+  appState.config = null;
+  appState.buttons = [];
+  appState.selectedButton = null;
+  appState.lastRelease = null;
+  appState.unlockHint = '';
+  appState.locked = true;
+  appState.setupNeeded = true;
+  appState.lockMinutes = DEFAULT_LOCK_MINUTES;
+  appState.ready = true;
+  setInfo('Réinitialisation usine effectuée');
+}
+
 export function describeButtonState(button) {
   const label = button.state === 'on' ? 'Allumé' : button.state === 'off' ? 'Éteint' : 'Inconnu';
   return `${button.label} · ${label}`;

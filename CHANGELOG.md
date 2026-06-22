@@ -2,6 +2,19 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.7] - 2026-06-22 22:47
+
+### Ajouté
+
+- Entrée `Reset factory` en tête du hamburger.
+- Réinitialisation complète de la base locale via confirmation explicite.
+- Retour immédiat à l’écran d’accueil après reset.
+
+### Modifié
+
+- Le reset usine remet aussi l’état mémoire à zéro.
+- Préparation d’un vrai départ propre quand le cache local est incohérent.
+
 ## [0.0.6] - 2026-06-22 22:37
 
 ### Ajouté
