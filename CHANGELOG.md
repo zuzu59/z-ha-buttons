@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.13] - 2026-06-22 23:58
+
+### Modifié
+
+- Le tri des boutons se sauvegarde automatiquement à chaque modification.
+- Le formulaire d’ordre n’a plus besoin de bouton `Enregistrer`.
+- La liste d’accueil conserve l’ordre choisi après retour et rechargement.
+
 ## [0.0.12] - 2026-06-22 23:50
 
 ### Ajouté

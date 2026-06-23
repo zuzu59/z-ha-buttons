@@ -29,6 +29,7 @@ import {
 import { fromCsv, toCsv } from './csv.js';
 
 const CONFIG_KEY = 'ha-config';
+const BUTTON_ORDER_KEY = 'button-order';
 const DEFAULT_LOCK_MINUTES = 15;
 
 function defaultButtonOrder(buttons) {
@@ -101,6 +102,28 @@ async function persistConfigValue(patch) {
   syncFromRecord(next);
 }
 
+async function persistButtonOrder(buttons) {
+  await putSetting({
+    key: BUTTON_ORDER_KEY,
+    value: {
+      ids: buttons.map((button) => button.id),
+      updatedAt: nowIso(),
+    },
+    updatedAt: nowIso(),
+  });
+}
+
+function applySavedButtonOrder(buttons, orderRecord) {
+  const ids = orderRecord?.ids || [];
+  if (!Array.isArray(ids) || !ids.length) {
+    return buttons;
+  }
+  const byId = new Map(buttons.map((button) => [Number(button.id), button]));
+  const ordered = ids.map((id) => byId.get(Number(id))).filter(Boolean);
+  const remaining = buttons.filter((button) => !ids.includes(button.id));
+  return [...ordered, ...remaining];
+}
+
 function syncFromRecord(record) {
   if (!record) {
     appState.config = null;
@@ -142,7 +165,11 @@ export async function initialiseStore() {
     const configRecord = await getSetting(CONFIG_KEY);
     syncFromRecord(configRecord?.value || null);
     const buttons = await getAllButtons();
-    appState.buttons = buttons.map(normalizeButton);
+    const savedOrder = await getSetting(BUTTON_ORDER_KEY);
+    appState.buttons = applySavedButtonOrder(
+      buttons.map(normalizeButton),
+      savedOrder?.value,
+    );
 
     if (appState.config?.masterPassword) {
       try {
@@ -298,12 +325,14 @@ export async function saveButton(button) {
   }
   const id = await saveButtonInDb(record);
   await reloadButtons();
+  await persistButtonOrder(appState.buttons);
   return { ...record, id };
 }
 
 export async function removeButton(id) {
   await deleteButtonInDb(id);
   await reloadButtons();
+  await persistButtonOrder(appState.buttons);
 }
 
 export async function reloadButtons() {
@@ -321,14 +350,18 @@ export async function moveButton(id, direction) {
   if (index < 0) return;
   const targetIndex = index + direction;
   if (targetIndex < 0 || targetIndex >= buttons.length) return;
-  const current = buttons[index];
-  const target = buttons[targetIndex];
-  const currentOrder = current.order;
-  current.order = target.order;
-  target.order = currentOrder;
-  await saveButtonInDb(current);
-  await saveButtonInDb(target);
-  await reloadButtons();
+  const moved = buttons.splice(index, 1)[0];
+  buttons.splice(targetIndex, 0, moved);
+  const updatedButtons = buttons.map((button, orderIndex) => ({
+    ...button,
+    order: orderIndex + 1,
+    updatedAt: nowIso(),
+  }));
+  await db.transaction('rw', db.buttons, async () => {
+    await db.buttons.bulkPut(updatedButtons);
+  });
+  await persistButtonOrder(updatedButtons);
+  appState.buttons = updatedButtons.map(normalizeButton);
 }
 
 export async function exportDatabaseCsv() {

@@ -9,7 +9,7 @@ const buttons = computed(() => [...appState.buttons].sort((a, b) => a.order - b.
   <section class="view-stack">
     <div class="panel">
       <h1>Ordre d’affichage</h1>
-      <p>Réorganise l’accueil avec les boutons haut / bas.</p>
+      <p>Réorganise l’accueil avec les boutons haut / bas. Sauvegarde automatique.</p>
       <div class="order-list">
         <div v-for="button in buttons" :key="button.id" class="order-row">
           <div>
