@@ -2,6 +2,15 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.15] - 2026-06-23 18:18
+
+### Modifié
+
+- La page d’accueil recharge automatiquement les états Home Assistant au
+  chargement.
+- Les statuts affichés sur les cartes reflètent maintenant l’état réel.
+- Le retour sur l’accueil rafraîchit les boutons sans action manuelle.
+
 ## [0.0.14] - 2026-06-23 18:18
 
 ### Modifié

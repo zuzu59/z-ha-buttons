@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ButtonCard from '../components/ButtonCard.vue';
-import { appState, toggleButtonState } from '../lib/store.js';
+import { appState, refreshRemoteStates, toggleButtonState } from '../lib/store.js';
 
 const router = useRouter();
 const buttons = computed(() => [...appState.buttons].sort((a, b) => a.order - b.order));
@@ -10,6 +10,12 @@ const buttons = computed(() => [...appState.buttons].sort((a, b) => a.order - b.
 function openDetail(button) {
   router.push(`/buttons/${button.id}`);
 }
+
+onMounted(() => {
+  refreshRemoteStates(true).catch(() => {
+    // handled by store state/messages
+  });
+});
 </script>
 
 <template>
