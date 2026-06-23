@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref, watchEffect } from 'vue';
+import { bytesToUtf8 } from '../lib/crypto.js';
 import { pingHomeAssistant } from '../lib/homeAssistant.js';
 import { appState, saveConfiguration } from '../lib/store.js';
 
@@ -11,11 +12,19 @@ const form = reactive({
 });
 const status = ref('');
 const error = ref('');
+const showToken = ref(false);
+const showMasterPassword = ref(false);
 
 watchEffect(() => {
-  if (appState.config) {
-    form.serverUrl = appState.config.serverUrl || '';
+  if (!appState.config) {
+    return;
   }
+  form.serverUrl = appState.config.serverUrl || '';
+  form.masterPassword = appState.config.masterPassword || '';
+  form.confirmPassword = appState.config.masterPassword || '';
+  form.token = appState.config.unlockedTokenBytes
+    ? bytesToUtf8(appState.config.unlockedTokenBytes)
+    : form.token;
 });
 
 async function testConnection() {
@@ -57,9 +66,6 @@ async function submit() {
       token: form.token,
       masterPassword: form.masterPassword,
     });
-    form.token = '';
-    form.masterPassword = '';
-    form.confirmPassword = '';
     status.value = 'Configuration enregistrée';
   } catch (cause) {
     error.value = cause?.message || 'Enregistrement impossible';
@@ -79,11 +85,39 @@ async function submit() {
         </label>
         <label>
           Token Home Assistant
-          <input v-model="form.token" type="password" placeholder="Long token" />
+          <div class="field-with-action">
+            <input
+              v-model="form.token"
+              :type="showToken ? 'text' : 'password'"
+              placeholder="Long token"
+            />
+            <button
+              class="ghost compact icon-toggle"
+              type="button"
+              :aria-label="showToken ? 'Masquer le token' : 'Afficher le token'"
+              @click="showToken = !showToken"
+            >
+              {{ showToken ? '🙈' : '👁' }}
+            </button>
+          </div>
         </label>
         <label>
           Mot de passe maître
-          <input v-model="form.masterPassword" type="password" autocomplete="new-password" />
+          <div class="field-with-action">
+            <input
+              v-model="form.masterPassword"
+              :type="showMasterPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+            />
+            <button
+              class="ghost compact icon-toggle"
+              type="button"
+              :aria-label="showMasterPassword ? 'Masquer le mot de passe maître' : 'Afficher le mot de passe maître'"
+              @click="showMasterPassword = !showMasterPassword"
+            >
+              {{ showMasterPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
         </label>
         <label>
           Confirmation du mot de passe

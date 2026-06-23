@@ -2,6 +2,21 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.12] - 2026-06-22 23:50
+
+### Ajouté
+
+- Réouverture automatique des valeurs de configuration depuis la base locale.
+- Boutons œil pour afficher ou masquer le token et le mot de passe maître.
+
+### Modifié
+
+- La page Configuration restaure maintenant le token et le mot de passe
+  maître existants.
+- Les champs de la configuration ne sont plus vidés après enregistrement.
+- Confirmation préremplie pour faciliter la sauvegarde d’une configuration
+  existante.
+
 ## [0.0.11] - 2026-06-22 23:40
 
 ### Modifié

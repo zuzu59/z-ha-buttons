@@ -207,6 +207,22 @@ label {
   font-size: .92rem;
 }
 
+.field-with-action {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.field-with-action input {
+  flex: 1;
+  min-width: 0;
+}
+
+.icon-toggle {
+  width: 3rem;
+  padding-inline: 0;
+}
+
 input,
 select {
   width: 100%;
