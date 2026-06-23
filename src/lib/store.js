@@ -297,7 +297,9 @@ export async function refreshButtonState(id) {
     lastSyncedAt: nowIso(),
   });
   await saveButtonInDb(updated);
-  await reloadButtons();
+  appState.buttons = appState.buttons.map((current) =>
+    Number(current.id) === Number(updated.id) ? updated : current,
+  );
 }
 
 export async function setLightState(id, payload) {

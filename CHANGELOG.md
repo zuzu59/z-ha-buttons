@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.16] - 2026-06-23 18:30
+
+### Modifié
+
+- Le rafraîchissement d’un bouton ne réinitialise plus les autres cartes.
+- Les états déjà chargés restent visibles quand un bouton est actionné.
+- L’expérience de navigation home / détail reste cohérente après toggle.
+
 ## [0.0.15] - 2026-06-23 18:18
 
 ### Modifié
