@@ -314,9 +314,20 @@ input:disabled {
   overflow: hidden;
 }
 
+.menu-heading {
+  padding: .75rem 1rem .45rem;
+  color: var(--text-muted);
+  font-size: .78rem;
+  letter-spacing: .08em;
+}
+
 .menu-item {
   padding: .9rem 1rem;
   border-bottom: 1px solid rgba(148,163,184,.1);
+}
+
+.menu-subitem {
+  padding-left: 1.35rem;
 }
 
 .menu-action {

@@ -10,15 +10,28 @@ const unlockPassword = ref('');
 const unlockError = ref('');
 const unlockDialogOpen = ref(true);
 
-const menuEntries = [
-  { action: resetFactoryAndHome, label: 'Reset factory' },
-  { to: '/help', label: 'Help' },
-  { to: '/order', label: 'Ordre d’affichage des boutons' },
-  { to: '/buttons/new', label: 'Ajout d’un bouton' },
-  { to: '/settings', label: 'Configuration' },
-  { to: '/sync', label: 'Exportation / importation CSV' },
-  { action: forceRefreshPwa, label: 'Force refresh PWA' },
-  { to: '/about', label: 'About' },
+const menuSections = [
+  {
+    items: [
+      { to: '/buttons/new', label: 'Ajout d’un bouton' },
+      { to: '/order', label: 'Ordre d’affichage des boutons' },
+    ],
+  },
+  {
+    heading: 'Tools',
+    items: [
+      { to: '/settings', label: 'Configuration' },
+      { to: '/sync', label: 'Exportation / importation CSV' },
+      { action: forceRefreshPwa, label: 'Force refresh PWA' },
+      { action: resetFactoryAndHome, label: 'Reset factory' },
+    ],
+  },
+  {
+    items: [
+      { to: '/help', label: 'Help' },
+      { to: '/about', label: 'About' },
+    ],
+  },
 ];
 
 const title = computed(() => 'z-ha-buttons');
@@ -112,23 +125,26 @@ onBeforeUnmount(() => {
 
     <div v-if="menuOpen" class="backdrop" @click.self="closeMenu">
       <nav class="menu-panel">
-        <template v-for="entry in menuEntries" :key="entry.label">
-          <RouterLink
-            v-if="entry.to"
-            :to="entry.to"
-            class="menu-item"
-            @click="closeMenu"
-          >
-            {{ entry.label }}
-          </RouterLink>
-          <button
-            v-else
-            class="menu-item menu-action"
-            type="button"
-            @click="activateMenuEntry(entry)"
-          >
-            {{ entry.label }}
-          </button>
+        <template v-for="section in menuSections" :key="section.heading || section.items[0].label">
+          <div v-if="section.heading" class="menu-heading">{{ section.heading }}</div>
+          <template v-for="entry in section.items" :key="entry.label">
+            <RouterLink
+              v-if="entry.to"
+              :to="entry.to"
+              class="menu-item menu-subitem"
+              @click="closeMenu"
+            >
+              {{ entry.label }}
+            </RouterLink>
+            <button
+              v-else
+              class="menu-item menu-action menu-subitem"
+              type="button"
+              @click="activateMenuEntry(entry)"
+            >
+              {{ entry.label }}
+            </button>
+          </template>
         </template>
       </nav>
     </div>

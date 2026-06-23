@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.17] - 2026-06-23 18:38
+
+### Modifié
+
+- Réorganisation du hamburger avec une hiérarchie claire.
+- Section `Tools` dédiée aux actions de maintenance.
+- Mise en retrait visuelle des entrées de maintenance dans le menu.
+
 ## [0.0.16] - 2026-06-23 18:30
 
 ### Modifié
