@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.14] - 2026-06-23 18:18
+
+### Modifié
+
+- Correction du déplacement des boutons dans l’ordre d’affichage.
+- Sauvegarde robuste des réordonnancements dans la base locale.
+- L’ordre choisi reste bien conservé après reload.
+
 ## [0.0.13] - 2026-06-22 23:58
 
 ### Modifié

@@ -3,6 +3,14 @@ import { computed } from 'vue';
 import { appState, moveButton } from '../lib/store.js';
 
 const buttons = computed(() => [...appState.buttons].sort((a, b) => a.order - b.order));
+
+async function moveUp(id) {
+  await moveButton(id, -1);
+}
+
+async function moveDown(id) {
+  await moveButton(id, 1);
+}
 </script>
 
 <template>
@@ -17,8 +25,8 @@ const buttons = computed(() => [...appState.buttons].sort((a, b) => a.order - b.
             <p>{{ button.entityId }}</p>
           </div>
           <div class="actions compact-actions">
-            <button class="ghost compact" type="button" @click="moveButton(button.id, -1)">↑</button>
-            <button class="ghost compact" type="button" @click="moveButton(button.id, 1)">↓</button>
+            <button class="ghost compact" type="button" @click="moveUp(button.id)">↑</button>
+            <button class="ghost compact" type="button" @click="moveDown(button.id)">↓</button>
           </div>
         </div>
       </div>

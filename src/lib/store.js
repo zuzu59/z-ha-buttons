@@ -354,6 +354,7 @@ export async function moveButton(id, direction) {
   buttons.splice(targetIndex, 0, moved);
   const updatedButtons = buttons.map((button, orderIndex) => ({
     ...button,
+    attributes: JSON.parse(JSON.stringify(button.attributes ?? {})),
     order: orderIndex + 1,
     updatedAt: nowIso(),
   }));
@@ -361,7 +362,7 @@ export async function moveButton(id, direction) {
     await db.buttons.bulkPut(updatedButtons);
   });
   await persistButtonOrder(updatedButtons);
-  appState.buttons = updatedButtons.map(normalizeButton);
+  await reloadButtons();
 }
 
 export async function exportDatabaseCsv() {
