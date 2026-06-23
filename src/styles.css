@@ -314,11 +314,18 @@ input:disabled {
   overflow: hidden;
 }
 
-.menu-heading {
-  padding: .75rem 1rem .45rem;
-  color: var(--text-muted);
-  font-size: .78rem;
-  letter-spacing: .08em;
+.menu-group {
+  display: grid;
+}
+
+.menu-submenu {
+  display: none;
+  grid-template-columns: 1fr;
+}
+
+.menu-group:hover .menu-submenu,
+.menu-group:focus-within .menu-submenu {
+  display: grid;
 }
 
 .menu-item {
@@ -328,6 +335,18 @@ input:disabled {
 
 .menu-subitem {
   padding-left: 1.35rem;
+}
+
+.menu-group-trigger {
+  position: relative;
+}
+
+.menu-group-trigger::after {
+  content: '›';
+  position: absolute;
+  right: 1rem;
+  color: var(--text-muted);
+  transform: rotate(90deg);
 }
 
 .menu-action {

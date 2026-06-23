@@ -10,28 +10,21 @@ const unlockPassword = ref('');
 const unlockError = ref('');
 const unlockDialogOpen = ref(true);
 
-const menuSections = [
-  {
-    items: [
-      { to: '/buttons/new', label: 'Ajout d’un bouton' },
-      { to: '/order', label: 'Ordre d’affichage des boutons' },
-    ],
-  },
-  {
-    heading: 'Tools',
-    items: [
-      { to: '/settings', label: 'Configuration' },
-      { to: '/sync', label: 'Exportation / importation CSV' },
-      { action: forceRefreshPwa, label: 'Force refresh PWA' },
-      { action: resetFactoryAndHome, label: 'Reset factory' },
-    ],
-  },
-  {
-    items: [
-      { to: '/help', label: 'Help' },
-      { to: '/about', label: 'About' },
-    ],
-  },
+const primaryMenuEntries = [
+  { to: '/buttons/new', label: 'Ajout d’un bouton' },
+  { to: '/order', label: 'Ordre d’affichage des boutons' },
+];
+
+const toolMenuEntries = [
+  { to: '/settings', label: 'Configuration' },
+  { to: '/sync', label: 'Exportation / importation CSV' },
+  { action: forceRefreshPwa, label: 'Force refresh PWA' },
+  { action: resetFactoryAndHome, label: 'Reset factory' },
+];
+
+const footerMenuEntries = [
+  { to: '/help', label: 'Help' },
+  { to: '/about', label: 'About' },
 ];
 
 const title = computed(() => 'z-ha-buttons');
@@ -125,26 +118,50 @@ onBeforeUnmount(() => {
 
     <div v-if="menuOpen" class="backdrop" @click.self="closeMenu">
       <nav class="menu-panel">
-        <template v-for="section in menuSections" :key="section.heading || section.items[0].label">
-          <div v-if="section.heading" class="menu-heading">{{ section.heading }}</div>
-          <template v-for="entry in section.items" :key="entry.label">
-            <RouterLink
-              v-if="entry.to"
-              :to="entry.to"
-              class="menu-item menu-subitem"
-              @click="closeMenu"
-            >
-              {{ entry.label }}
-            </RouterLink>
-            <button
-              v-else
-              class="menu-item menu-action menu-subitem"
-              type="button"
-              @click="activateMenuEntry(entry)"
-            >
-              {{ entry.label }}
-            </button>
-          </template>
+        <template v-for="entry in primaryMenuEntries" :key="entry.label">
+          <RouterLink
+            :to="entry.to"
+            class="menu-item"
+            @click="closeMenu"
+          >
+            {{ entry.label }}
+          </RouterLink>
+        </template>
+
+        <div class="menu-group">
+          <button class="menu-item menu-action menu-group-trigger" type="button">
+            Tools
+          </button>
+          <div class="menu-submenu">
+            <template v-for="entry in toolMenuEntries" :key="entry.label">
+              <RouterLink
+                v-if="entry.to"
+                :to="entry.to"
+                class="menu-item menu-subitem"
+                @click="closeMenu"
+              >
+                {{ entry.label }}
+              </RouterLink>
+              <button
+                v-else
+                class="menu-item menu-action menu-subitem"
+                type="button"
+                @click="activateMenuEntry(entry)"
+              >
+                {{ entry.label }}
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <template v-for="entry in footerMenuEntries" :key="entry.label">
+          <RouterLink
+            :to="entry.to"
+            class="menu-item"
+            @click="closeMenu"
+          >
+            {{ entry.label }}
+          </RouterLink>
         </template>
       </nav>
     </div>

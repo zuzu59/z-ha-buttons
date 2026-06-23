@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.18] - 2026-06-23 18:51
+
+### Modifié
+
+- La section `Tools` se déplie désormais au survol.
+- Les actions de maintenance sont cachées tant que `Tools` n’est pas ouvert.
+- Le menu principal reste plus compact et plus lisible.
+
 ## [0.0.17] - 2026-06-23 18:38
 
 ### Modifié
