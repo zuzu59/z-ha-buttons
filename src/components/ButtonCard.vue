@@ -53,7 +53,6 @@ onBeforeUnmount(() => clearTimeout(holdTimer.value));
   >
     <span class="button-icon">{{ iconGlyph(button.icon) }}</span>
     <span class="button-label">{{ button.label }}</span>
-    <span class="button-entity">{{ button.entityId }}</span>
     <span class="button-state">{{ button.state }}</span>
   </button>
 </template>

@@ -24,7 +24,7 @@ describe('ButtonCard', () => {
     });
 
     expect(html).toContain('Salon');
-    expect(html).toContain('⚡');
+    expect(html).toContain('💡');
     expect(html).toContain('on');
     expect(html).not.toContain('light.salon');
   });
