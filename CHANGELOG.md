@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.21] - 2026-07-10 23:07
+
+### Modifié
+
+- Refactorisation de la page About pour une mise en page plus lisible.
+- La vérification GitHub des releases gère désormais le `404` comme un cas
+  normal : aucune release publiée.
+- Les liens de documentation About pointent toujours sur la branche `ver2`.
+
+### Tests
+
+- Validation headless de la page About après refonte.
+- Vérification du comportement sans release publiée.
+
 ## [0.0.20] - 2026-07-10 21:22
 
 ### Modifié
