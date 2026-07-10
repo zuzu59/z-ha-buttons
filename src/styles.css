@@ -470,6 +470,64 @@ input:disabled {
   margin: 0;
 }
 
+.help-view {
+  gap: 1rem;
+}
+
+.help-hero,
+.help-card {
+  display: grid;
+  gap: .75rem;
+}
+
+.help-hero h1,
+.help-card h2 {
+  margin: 0;
+}
+
+.help-lead {
+  margin: 0;
+  max-width: 65ch;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.help-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.help-steps,
+.help-bullets {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: .6rem;
+}
+
+.help-actions {
+  display: grid;
+  gap: .75rem;
+}
+
+.help-action {
+  padding: .9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(148,163,184,.12);
+}
+
+.help-action h2 {
+  font-size: 1rem;
+  margin: 0 0 .3rem;
+}
+
+.help-action p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .bullet-list {
   margin: .5rem 0 0;
   padding-left: 1.2rem;
@@ -504,8 +562,13 @@ input:disabled {
 }
 
 @media (min-width: 900px) {
-  .about-grid {
+  .about-grid,
+  .help-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .help-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

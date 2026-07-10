@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.22] - 2026-07-10 23:12
+
+### Modifié
+
+- Refactorisation de la page Help en guide d’accueil plus complet.
+- Ajout d’explications claires pour démarrer, piloter les boutons et gérer la
+  maintenance.
+- Réorganisation du contenu en sections plus lisibles sur mobile et desktop.
+
+### Tests
+
+- Validation visuelle du nouvel écran Help.
+- Vérification du build après refonte.
+
 ## [0.0.21] - 2026-07-10 23:07
 
 ### Modifié
