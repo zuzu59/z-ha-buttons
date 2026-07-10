@@ -28,6 +28,9 @@ import {
 } from './homeAssistant.js';
 import { fromCsv, toCsv } from './csv.js';
 
+const POST_WRITE_REFRESH_DELAY_MS = 1000;
+const POST_WRITE_REFRESH_RETRIES = 3;
+
 const CONFIG_KEY = 'ha-config';
 const BUTTON_ORDER_KEY = 'button-order';
 const DEFAULT_LOCK_MINUTES = 15;
@@ -253,6 +256,30 @@ export function getRuntimeConfig() {
   };
 }
 
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function fetchEntityStateWithRetry(runtime, entityId, previousState) {
+  let lastRemote = null;
+  for (let attempt = 0; attempt <= POST_WRITE_REFRESH_RETRIES; attempt += 1) {
+    if (attempt > 0) {
+      await delay(POST_WRITE_REFRESH_DELAY_MS);
+    }
+    const remote = await fetchEntityState(runtime, entityId);
+    if (!remote) {
+      continue;
+    }
+    lastRemote = remote;
+    if (remote.state !== previousState || attempt === POST_WRITE_REFRESH_RETRIES) {
+      return remote;
+    }
+  }
+  return lastRemote;
+}
+
 export async function refreshRemoteStates(updateButtons = true) {
   if (!appState.config || !appState.config.unlockedTokenBytes) {
     return;
@@ -280,26 +307,33 @@ export async function toggleButtonState(button) {
   registerActivity();
   const runtime = getRuntimeConfig();
   await callEntityToggle(runtime, button.entityId);
-  await refreshButtonState(button.id);
+  void refreshButtonState(button.id);
 }
 
 export async function refreshButtonState(id) {
-  const button = await getButton(id);
-  if (!button || !appState.config || !appState.config.unlockedTokenBytes) {
-    return;
+  try {
+    const button = await getButton(id);
+    if (!button || !appState.config || !appState.config.unlockedTokenBytes) {
+      return;
+    }
+    const runtime = getRuntimeConfig();
+    const remote = await fetchEntityStateWithRetry(runtime, button.entityId, button.state);
+    if (!remote) {
+      return;
+    }
+    const updated = normalizeButton({
+      ...button,
+      state: remote.state,
+      attributes: remote.attributes || {},
+      lastSyncedAt: nowIso(),
+    });
+    await saveButtonInDb(updated);
+    appState.buttons = appState.buttons.map((current) =>
+      Number(current.id) === Number(updated.id) ? updated : current,
+    );
+  } catch (error) {
+    setError(error?.message || 'Impossible de mettre à jour l’état');
   }
-  const runtime = getRuntimeConfig();
-  const remote = await fetchEntityState(runtime, button.entityId);
-  const updated = normalizeButton({
-    ...button,
-    state: remote.state,
-    attributes: remote.attributes || {},
-    lastSyncedAt: nowIso(),
-  });
-  await saveButtonInDb(updated);
-  appState.buttons = appState.buttons.map((current) =>
-    Number(current.id) === Number(updated.id) ? updated : current,
-  );
 }
 
 export async function setLightState(id, payload) {
@@ -310,7 +344,7 @@ export async function setLightState(id, payload) {
   }
   const runtime = getRuntimeConfig();
   await setLightValues(runtime, button.entityId, payload);
-  await refreshButtonState(button.id);
+  void refreshButtonState(button.id);
 }
 
 export async function saveButton(button) {

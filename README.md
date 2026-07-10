@@ -13,8 +13,10 @@ npm run dev
 
 ```bash
 npm run build
-npm run preview
+npm run preview:manual
 ```
+
+Le serveur reste ouvert sur `4173` pour la vérification manuelle.
 
 ## Notes
 
