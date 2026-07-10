@@ -2,6 +2,43 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.20] - 2026-07-10 21:22
+
+### Modifié
+
+- Les cartes d’accueil n’affichent plus le nom technique des entités Home
+  Assistant.
+- Le rendu des boutons est plus épuré sur la page principale.
+- L’affichage reste centré sur le libellé métier, l’icône et l’état.
+
+### Tests
+
+- Ajout d’une couverture de non-régression pour vérifier que le nom de
+  l’entité n’apparaît pas sur une carte d’accueil.
+- Validation du rendu SSR du composant `ButtonCard`.
+
+## [0.0.19] - 2026-07-10 20:43
+
+### Ajouté
+
+- Script `preview:manual` dédié à la prévisualisation manuelle sur le port
+  `4173`.
+- Alias de lancement manuel séparé du smoke browser automatique.
+- Helper de smoke browser qui démarre un seul serveur preview strict et
+  nettoie proprement le navigateur et le serveur après vérification.
+
+### Tests
+
+- Couverture de la version affichée dans l’interface.
+- Couverture du workflow de smoke browser.
+- Couverture du lancement manuel du preview.
+
+### Modifié
+
+- Le menu npm expose désormais une commande de preview manuelle explicite.
+- Le flux de vérification automatisée s’appuie sur un serveur unique et
+  reproductible.
+
 ## [0.0.18] - 2026-06-23 18:51
 
 ### Modifié
