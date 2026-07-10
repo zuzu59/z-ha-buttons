@@ -2,6 +2,21 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.23] - 2026-07-10 23:16
+
+### Modifié
+
+- Refonte du README pour expliquer plus clairement l’installation, le
+  démarrage, les scripts et l’utilisation courante.
+- Le guide du dépôt met maintenant en avant les flux principaux :
+  configuration, ajout de boutons, pilotage et maintenance.
+- La documentation d’accueil reflète mieux les capacités réelles de l’app.
+
+### Tests
+
+- Vérification du build après mise à jour de la documentation.
+- Validation de la version affichée dans l’interface.
+
 ## [0.0.22] - 2026-07-10 23:12
 
 ### Modifié
