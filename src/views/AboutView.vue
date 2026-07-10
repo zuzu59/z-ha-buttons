@@ -45,8 +45,8 @@ onMounted(loadRelease);
       <div class="stack">
         <a class="compact-link" href="https://github.com/zuzu59" target="_blank" rel="noreferrer">GitHub.com/zuzu59</a>
         <a class="compact-link" href="https://github.com/zuzu59/z-ha-buttons" target="_blank" rel="noreferrer">Dépôt GitHub</a>
-        <a class="compact-link" href="https://github.com/zuzu59/z-ha-buttons/blob/dev/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a>
-        <a class="compact-link" href="https://github.com/zuzu59/z-ha-buttons/blob/dev/CHANGELOG.md" target="_blank" rel="noreferrer">Version {{ appState.version }}</a>
+        <a class="compact-link" href="https://github.com/zuzu59/z-ha-buttons/blob/ver2/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a>
+        <a class="compact-link" href="https://github.com/zuzu59/z-ha-buttons/blob/ver2/CHANGELOG.md" target="_blank" rel="noreferrer">Version {{ appState.version }}</a>
       </div>
       <p v-if="updateMessage" class="success">{{ updateMessage }}</p>
       <p v-if="release" class="muted">Dernière release : {{ release.tag_name }}</p>
