@@ -82,9 +82,10 @@ async function waitForDevTools(timeoutMs = 30000) {
 }
 
 function spawnPreviewServer() {
-  const viteBin = join(process.cwd(), 'node_modules', 'vite', 'bin', 'vite.js');
-  const child = spawn(process.execPath, [
-    viteBin,
+  const child = spawn('npm', [
+    'exec',
+    'vite',
+    '--',
     'preview',
     '--host',
     '0.0.0.0',
@@ -95,6 +96,7 @@ function spawnPreviewServer() {
     cwd: process.cwd(),
     env: process.env,
     stdio: ['ignore', 'pipe', 'pipe'],
+    detached: true,
   });
   attachLogging(child, 'preview');
   return child;
@@ -178,13 +180,28 @@ async function stopChild(child) {
   if (!child || child.killed) {
     return;
   }
-  child.kill('SIGTERM');
+  const signalTargets = child.pid ? [-child.pid, child.pid] : [child.pid];
+  for (const target of signalTargets) {
+    try {
+      if (target) {
+        process.kill(target, 'SIGTERM');
+      }
+    } catch {
+      // ignore process-group cleanup failures
+    }
+  }
   await Promise.race([
     toExitPromise(child),
     delay(5000),
   ]);
-  if (!child.killed) {
-    child.kill('SIGKILL');
+  for (const target of signalTargets) {
+    try {
+      if (target) {
+        process.kill(target, 'SIGKILL');
+      }
+    } catch {
+      // ignore process-group cleanup failures
+    }
   }
 }
 
