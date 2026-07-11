@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareVersions, extractLatestChangelogVersion } from './changelog.js';
+import { compareVersions, extractLatestChangelogVersion, getChangelogUpdateMessage } from './changelog.js';
 
 describe('changelog helpers', () => {
   it('extracts the top changelog version', () => {
@@ -11,5 +11,10 @@ describe('changelog helpers', () => {
     expect(compareVersions('0.0.24', '0.0.25')).toBeGreaterThan(0);
     expect(compareVersions('0.0.25', '0.0.25')).toBe(0);
     expect(compareVersions('0.0.26', '0.0.25')).toBeLessThan(0);
+  });
+
+  it('builds a clear update message', () => {
+    expect(getChangelogUpdateMessage('0.0.24', '0.0.25')).toBe('Nouvelle version disponible : 0.0.25');
+    expect(getChangelogUpdateMessage('0.0.28', '0.0.25')).toBe('Aucune nouvelle version disponible');
   });
 });

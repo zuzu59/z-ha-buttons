@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { compareVersions, extractLatestChangelogVersion } from '../lib/changelog.js';
+import { extractLatestChangelogVersion, getChangelogUpdateMessage } from '../lib/changelog.js';
 import { appState } from '../lib/store.js';
 
 const repositoryUrl = 'https://github.com/zuzu59/z-ha-buttons';
@@ -36,9 +36,7 @@ async function loadChangelog() {
       url: changelogUrl,
     };
     changelogState.value = 'ready';
-    if (latestVersion && compareVersions(appState.version, latestVersion) > 0) {
-      updateMessage.value = `Nouvelle version disponible : ${latestVersion}`;
-    }
+    updateMessage.value = getChangelogUpdateMessage(appState.version, latestVersion);
   } catch (error) {
     changelogState.value = 'error';
     changelog.value = null;

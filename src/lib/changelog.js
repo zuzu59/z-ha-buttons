@@ -13,6 +13,15 @@ export function extractLatestChangelogVersion(markdown) {
   return match?.[1] || '';
 }
 
+export function getChangelogUpdateMessage(currentVersion, latestVersion) {
+  if (!latestVersion) {
+    return '';
+  }
+  return compareVersions(currentVersion, latestVersion) > 0
+    ? `Nouvelle version disponible : ${latestVersion}`
+    : 'Aucune nouvelle version disponible';
+}
+
 export function decodeBase64Utf8(base64) {
   const normalized = String(base64).replace(/\s+/g, '');
   if (typeof atob === 'function') {

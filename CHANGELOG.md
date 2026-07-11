@@ -2,6 +2,22 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.29] - 2026-07-11 12:18
+
+### Modifié
+
+- About affiche maintenant clairement la version locale, la version GitHub
+  détectée et un message explicite d’état.
+- Le statut indique désormais soit une nouvelle version disponible, soit
+  qu’aucune nouvelle version n’est disponible.
+- La comparaison de version et l’extraction du changelog GitHub sont
+  factorisées dans un helper testable.
+
+### Tests
+
+- Couverture du message d’état du changelog.
+- Couverture de la logique de comparaison et d’extraction du changelog.
+
 ## [0.0.28] - 2026-07-11 12:11
 
 ### Modifié
