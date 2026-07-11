@@ -2,6 +2,19 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.33] - 2026-07-11 16:12
+
+### Modifié
+
+- Création du fichier `PROMPT-2.md` avec la recette de reconstruction du
+  projet à partir du code.
+- Le document de recette inclut les procédures de travail demandées : bump de
+  version, serveur local 4173, publication sur demande.
+
+### Tests
+
+- Vérification de la version affichée dans l’interface.
+
 ## [0.0.32] - 2026-07-11 15:45
 
 ### Modifié
