@@ -1,57 +1,54 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { compareVersions, decodeBase64Utf8, extractLatestChangelogVersion } from '../lib/changelog.js';
 import { appState } from '../lib/store.js';
 
 const repositoryUrl = 'https://github.com/zuzu59/z-ha-buttons';
 const branchName = 'ver2';
 const changelogUrl = `${repositoryUrl}/blob/${branchName}/CHANGELOG.md`;
+const changelogApiUrl = `${repositoryUrl}/contents/CHANGELOG.md?ref=${branchName}`;
 
-const release = ref(null);
-const releaseState = ref('loading');
-const releaseError = ref('');
+const changelog = ref(null);
+const changelogState = ref('loading');
+const changelogError = ref('');
 const updateMessage = ref('');
 
-function compareVersions(a, b) {
-  const pa = String(a).replace(/^v/, '').split('.').map(Number);
-  const pb = String(b).replace(/^v/, '').split('.').map(Number);
-  for (let index = 0; index < 3; index += 1) {
-    const delta = (pb[index] || 0) - (pa[index] || 0);
-    if (delta !== 0) return delta;
-  }
-  return 0;
-}
-
-async function loadRelease() {
-  releaseState.value = 'loading';
-  releaseError.value = '';
+async function loadChangelog() {
+  changelogState.value = 'loading';
+  changelogError.value = '';
   updateMessage.value = '';
   try {
-    const response = await fetch('https://api.github.com/repos/zuzu59/z-ha-buttons/releases/latest', {
+    const response = await fetch(changelogApiUrl, {
       cache: 'no-store',
       headers: {
         Accept: 'application/vnd.github+json',
       },
     });
     if (response.status === 404) {
-      release.value = null;
-      releaseState.value = 'none';
+      changelog.value = null;
+      changelogState.value = 'none';
       return;
     }
     if (!response.ok) throw new Error(`GitHub ${response.status}`);
     const data = await response.json();
-    release.value = data;
-    releaseState.value = 'ready';
-    if (compareVersions(appState.version, data.tag_name || '') > 0) {
-      updateMessage.value = 'Nouvelle version disponible';
+    const markdown = decodeBase64Utf8(data.content || '');
+    const latestVersion = extractLatestChangelogVersion(markdown);
+    changelog.value = {
+      latestVersion,
+      url: data.html_url || changelogUrl,
+    };
+    changelogState.value = 'ready';
+    if (latestVersion && compareVersions(appState.version, latestVersion) < 0) {
+      updateMessage.value = `Nouvelle version disponible : ${latestVersion}`;
     }
   } catch (error) {
-    releaseState.value = 'error';
-    release.value = null;
-    releaseError.value = error?.message || 'Impossible de vérifier les releases';
+    changelogState.value = 'error';
+    changelog.value = null;
+    changelogError.value = error?.message || 'Impossible de vérifier le changelog';
   }
 }
 
-onMounted(loadRelease);
+onMounted(loadChangelog);
 </script>
 
 <template>
@@ -92,11 +89,11 @@ onMounted(loadRelease);
         <div class="eyebrow">Publication</div>
         <div class="release-card">
           <div>
-            <h2>Dernière release</h2>
-            <p v-if="releaseState === 'loading'" class="muted">Vérification en cours…</p>
-            <p v-else-if="release" class="muted">{{ release.tag_name }}</p>
-            <p v-else-if="releaseState === 'none'" class="muted">Aucune release publiée pour le moment.</p>
-            <p v-else class="error">{{ releaseError }}</p>
+            <h2>Changelog GitHub</h2>
+            <p v-if="changelogState === 'loading'" class="muted">Vérification en cours…</p>
+            <p v-else-if="changelog" class="muted">Dernière version publiée : {{ changelog.latestVersion }}</p>
+            <p v-else-if="changelogState === 'none'" class="muted">Changelog indisponible pour le moment.</p>
+            <p v-else class="error">{{ changelogError }}</p>
           </div>
           <p v-if="updateMessage" class="success">{{ updateMessage }}</p>
           <a class="about-link about-link-inline" :href="changelogUrl" target="_blank" rel="noreferrer">

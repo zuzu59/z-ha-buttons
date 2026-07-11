@@ -2,6 +2,21 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.25] - 2026-07-11 12:06
+
+### Modifié
+
+- La page About lit désormais le `CHANGELOG.md` publié sur GitHub pour
+  détecter les versions plus récentes.
+- Le menu About affiche la dernière version présente dans le changelog
+  distant et signale quand une version plus récente existe.
+- Le message d’alerte de mise à jour ne dépend plus des releases GitHub.
+
+### Tests
+
+- Couverture de l’extraction de la version la plus haute du changelog.
+- Couverture de la comparaison entre la version courante et la version GitHub.
+
 ## [0.0.24] - 2026-07-11 11:54
 
 ### Modifié
