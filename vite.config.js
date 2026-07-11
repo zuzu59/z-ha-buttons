@@ -16,7 +16,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg', 'favicon.svg'],
+      includeAssets: ['app-icon.png'],
       manifest: {
         name: 'z-ha-buttons',
         short_name: 'z-ha-buttons',
@@ -27,9 +27,9 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: '/app-icon.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable',
           },
         ],

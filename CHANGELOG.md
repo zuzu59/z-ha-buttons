@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.31] - 2026-07-11 14:09
+
+### Modifié
+
+- L’application utilise désormais l’icône PNG plus jolie fournie par
+  Flaticon.
+- Le favicon navigateur et l’icône PWA pointent vers la même image locale.
+- Le manifest PWA référence explicitement l’icône 512×512.
+
+### Tests
+
+- Vérification du build après remplacement de l’icône.
+- Vérification de la version affichée dans l’interface.
+
 ## [0.0.30] - 2026-07-11 12:26
 
 ### Modifié
