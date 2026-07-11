@@ -10,8 +10,11 @@ const __dirname = dirname(__filename);
 const { version } = JSON.parse(
   readFileSync(resolve(__dirname, 'package.json'), 'utf8'),
 );
+const isGitHubPages = process.env.GITHUB_PAGES === '1';
+const base = isGitHubPages ? '/z-ha-buttons/' : '/';
 
 export default defineConfig({
+  base,
   plugins: [
     vue(),
     VitePWA({
@@ -24,10 +27,11 @@ export default defineConfig({
         theme_color: '#0f172a',
         background_color: '#0b1020',
         display: 'standalone',
-        start_url: '/',
+        start_url: base,
+        scope: base,
         icons: [
           {
-            src: '/app-icon.png',
+            src: 'app-icon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

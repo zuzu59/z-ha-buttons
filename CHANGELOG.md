@@ -2,6 +2,20 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.32] - 2026-07-11 15:45
+
+### Modifié
+
+- Le build est désormais préparé pour GitHub Pages sous `/z-ha-buttons/`.
+- Le routeur SPA utilise la base Vite pour éviter les URLs cassées en
+  publication.
+- L’icône et le manifest restent cohérents sur le site publié.
+
+### Tests
+
+- Couverture du base URL du routeur.
+- Couverture de l’icône et du manifest liés au déploiement Pages.
+
 ## [0.0.31] - 2026-07-11 14:09
 
 ### Modifié

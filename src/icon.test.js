@@ -10,8 +10,9 @@ function readText(path) {
 
 describe('application icon', () => {
   it('uses the local PNG icon in the HTML shell and PWA manifest', () => {
-    expect(readText('index.html')).toContain('/app-icon.png');
-    expect(readText('vite.config.js')).toContain("src: '/app-icon.png'");
+    expect(readText('index.html')).toContain('%BASE_URL%app-icon.png');
+    expect(readText('vite.config.js')).toContain("src: 'app-icon.png'");
     expect(readText('vite.config.js')).toContain("type: 'image/png'");
+    expect(readText('vite.config.js')).toContain("scope: base");
   });
 });

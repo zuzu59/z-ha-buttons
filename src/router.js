@@ -9,7 +9,7 @@ import ImportExportView from './views/ImportExportView.vue';
 import AboutView from './views/AboutView.vue';
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'home', component: HomeView },
     { path: '/help', name: 'help', component: HelpView },
