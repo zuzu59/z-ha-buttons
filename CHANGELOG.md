@@ -2,6 +2,21 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.28] - 2026-07-11 12:11
+
+### Modifié
+
+- Correction du sens de comparaison dans About pour n’annoncer une nouvelle
+  version que lorsque le changelog GitHub est réellement plus récent.
+- Le message de mise à jour ne s’affiche plus à tort quand le browser est en
+  avance sur GitHub.
+- La logique About conserve le chargement brut GitHub avec cache-busting.
+
+### Tests
+
+- Vérification de la logique de comparaison nouvelle/ancienne version.
+- Couverture de l’extraction et de la comparaison des versions.
+
 ## [0.0.27] - 2026-07-11 12:09
 
 ### Modifié

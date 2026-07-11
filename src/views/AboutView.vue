@@ -36,7 +36,7 @@ async function loadChangelog() {
       url: changelogUrl,
     };
     changelogState.value = 'ready';
-    if (latestVersion && compareVersions(appState.version, latestVersion) < 0) {
+    if (latestVersion && compareVersions(appState.version, latestVersion) > 0) {
       updateMessage.value = `Nouvelle version disponible : ${latestVersion}`;
     }
   } catch (error) {
