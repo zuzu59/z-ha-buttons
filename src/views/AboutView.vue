@@ -1,12 +1,12 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { compareVersions, decodeBase64Utf8, extractLatestChangelogVersion } from '../lib/changelog.js';
+import { compareVersions, extractLatestChangelogVersion } from '../lib/changelog.js';
 import { appState } from '../lib/store.js';
 
 const repositoryUrl = 'https://github.com/zuzu59/z-ha-buttons';
 const branchName = 'ver2';
 const changelogUrl = `${repositoryUrl}/blob/${branchName}/CHANGELOG.md`;
-const changelogApiUrl = `${repositoryUrl}/contents/CHANGELOG.md?ref=${branchName}`;
+const changelogRawUrl = `https://raw.githubusercontent.com/zuzu59/z-ha-buttons/${branchName}/CHANGELOG.md`;
 
 const changelog = ref(null);
 const changelogState = ref('loading');
@@ -18,11 +18,10 @@ async function loadChangelog() {
   changelogError.value = '';
   updateMessage.value = '';
   try {
-    const response = await fetch(changelogApiUrl, {
+    const url = new URL(changelogRawUrl);
+    url.searchParams.set('t', String(Date.now()));
+    const response = await fetch(url, {
       cache: 'no-store',
-      headers: {
-        Accept: 'application/vnd.github+json',
-      },
     });
     if (response.status === 404) {
       changelog.value = null;
@@ -30,12 +29,11 @@ async function loadChangelog() {
       return;
     }
     if (!response.ok) throw new Error(`GitHub ${response.status}`);
-    const data = await response.json();
-    const markdown = decodeBase64Utf8(data.content || '');
+    const markdown = await response.text();
     const latestVersion = extractLatestChangelogVersion(markdown);
     changelog.value = {
       latestVersion,
-      url: data.html_url || changelogUrl,
+      url: changelogUrl,
     };
     changelogState.value = 'ready';
     if (latestVersion && compareVersions(appState.version, latestVersion) < 0) {

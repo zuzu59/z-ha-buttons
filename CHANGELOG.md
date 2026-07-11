@@ -2,6 +2,37 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.27] - 2026-07-11 12:09
+
+### Modifié
+
+- Le chargement du changelog GitHub ajoute un cache-buster pour éviter les
+  réponses CDN figées.
+- La détection de nouvelle version dans About devient plus robuste juste
+  après un push.
+- L’écran About continue d’utiliser le `CHANGELOG.md` brut comme source de
+  vérité.
+
+### Tests
+
+- Vérification du chargement du changelog brut avec cache-busting.
+- Couverture de l’extraction et de la comparaison des versions.
+
+## [0.0.26] - 2026-07-11 12:08
+
+### Modifié
+
+- La page About lit désormais le `CHANGELOG.md` brut depuis GitHub pour
+  éviter les blocages CORS de l’API.
+- La détection de version nouvelle devient fiable dans le navigateur.
+- Le menu About signale de nouveau correctement quand le changelog distant
+  contient une version plus récente.
+
+### Tests
+
+- Validation du chargement du changelog brut GitHub dans le navigateur.
+- Couverture de l’extraction et de la comparaison des versions.
+
 ## [0.0.25] - 2026-07-11 12:06
 
 ### Modifié
