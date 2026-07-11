@@ -1,0 +1,1 @@
+{"name":"z-ha-buttons","short_name":"z-ha-buttons","description":"PWA de pilotage Home Assistant","start_url":"/z-ha-buttons/","display":"standalone","background_color":"#0b1020","theme_color":"#0f172a","lang":"en","scope":"/z-ha-buttons/","icons":[{"src":"app-icon.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
