@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import packageJson from '../package.json';
 
 describe('application version', () => {
-  it('is bumped to 0.0.23', () => {
-    expect(packageJson.version).toBe('0.0.23');
+  it('is bumped to 0.0.24', () => {
+    expect(packageJson.version).toBe('0.0.24');
   });
 });

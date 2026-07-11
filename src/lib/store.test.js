@@ -103,7 +103,7 @@ describe.each([
   ['toggleButtonState', (button) => toggleButtonState(button), { id: 1, entityId: 'switch.kitchen', state: 'off', kind: 'switch' }],
   ['setLightState', (button) => setLightState(button.id, { brightness_pct: 65 }), { id: 2, entityId: 'light.salon', state: 'off', kind: 'light' }],
 ])('%s', (_label, invokeFlow, button) => {
-  it('waits and retries before persisting the confirmed state', async () => {
+  it('waits before reading back the confirmed state', async () => {
     seedButton(button);
     mocks.callEntityToggle.mockResolvedValue(undefined);
     mocks.setLightValues.mockResolvedValue(undefined);
@@ -116,12 +116,23 @@ describe.each([
     const task = invokeFlow(button);
 
     await Promise.resolve();
+    expect(mocks.fetchEntityState).not.toHaveBeenCalled();
     expect(mocks.saveButtonInDb).not.toHaveBeenCalled();
 
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(mocks.fetchEntityState).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(mocks.fetchEntityState).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mocks.fetchEntityState).toHaveBeenCalledTimes(2);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mocks.fetchEntityState).toHaveBeenCalledTimes(3);
+
     await task;
 
-    expect(mocks.fetchEntityState).toHaveBeenCalledTimes(3);
     expect(mocks.saveButtonInDb).toHaveBeenCalledWith(expect.objectContaining({ state: 'on' }));
     expect(appState.buttons[0]).toEqual(expect.objectContaining({ state: 'on' }));
   });

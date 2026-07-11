@@ -2,6 +2,22 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.24] - 2026-07-11 11:54
+
+### Modifié
+
+- Le rafraîchissement après action attend désormais deux secondes avant de
+  relire l’état Home Assistant.
+- Les entités distantes ont le temps de remonter leur nouveau statut avant
+  l’affichage.
+- La page de détails et l’accueil bénéficient de ce délai asynchrone sans
+  bloquer l’interface.
+
+### Tests
+
+- Couverture de la temporisation avant lecture de l’état confirmé.
+- Couverture du flux toggle / réglage lampe avec retries conservés.
+
 ## [0.0.23] - 2026-07-10 23:16
 
 ### Modifié

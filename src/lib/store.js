@@ -28,6 +28,7 @@ import {
 } from './homeAssistant.js';
 import { fromCsv, toCsv } from './csv.js';
 
+const POST_WRITE_REFRESH_INITIAL_DELAY_MS = 2000;
 const POST_WRITE_REFRESH_DELAY_MS = 1000;
 const POST_WRITE_REFRESH_RETRIES = 3;
 
@@ -262,8 +263,11 @@ function delay(ms) {
   });
 }
 
-async function fetchEntityStateWithRetry(runtime, entityId, previousState) {
+async function fetchEntityStateWithRetry(runtime, entityId, previousState, initialDelayMs = 0) {
   let lastRemote = null;
+  if (initialDelayMs > 0) {
+    await delay(initialDelayMs);
+  }
   for (let attempt = 0; attempt <= POST_WRITE_REFRESH_RETRIES; attempt += 1) {
     if (attempt > 0) {
       await delay(POST_WRITE_REFRESH_DELAY_MS);
@@ -317,7 +321,12 @@ export async function refreshButtonState(id) {
       return;
     }
     const runtime = getRuntimeConfig();
-    const remote = await fetchEntityStateWithRetry(runtime, button.entityId, button.state);
+    const remote = await fetchEntityStateWithRetry(
+      runtime,
+      button.entityId,
+      button.state,
+      POST_WRITE_REFRESH_INITIAL_DELAY_MS,
+    );
     if (!remote) {
       return;
     }
