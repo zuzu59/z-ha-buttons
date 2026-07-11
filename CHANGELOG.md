@@ -2,6 +2,22 @@
 
 Toutes les modifications notables de ce projet sont consignées ici.
 
+## [0.0.30] - 2026-07-11 12:26
+
+### Modifié
+
+- About a été simplifié pour séparer clairement la version locale, la
+  dernière version GitHub et l’état de mise à jour.
+- Le bouton du bas ouvre désormais le changelog GitHub au lieu de répéter la
+  version locale.
+- Le message d’état devient plus lisible : `Nouvelle version disponible` ou
+  `Tu es à jour`.
+
+### Tests
+
+- Couverture du message d’état plus explicite.
+- Couverture de la logique de comparaison et d’extraction du changelog.
+
 ## [0.0.29] - 2026-07-11 12:18
 
 ### Modifié

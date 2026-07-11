@@ -15,6 +15,6 @@ describe('changelog helpers', () => {
 
   it('builds a clear update message', () => {
     expect(getChangelogUpdateMessage('0.0.24', '0.0.25')).toBe('Nouvelle version disponible : 0.0.25');
-    expect(getChangelogUpdateMessage('0.0.28', '0.0.25')).toBe('Aucune nouvelle version disponible');
+    expect(getChangelogUpdateMessage('0.0.28', '0.0.25')).toBe('Tu es à jour');
   });
 });

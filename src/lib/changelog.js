@@ -19,7 +19,7 @@ export function getChangelogUpdateMessage(currentVersion, latestVersion) {
   }
   return compareVersions(currentVersion, latestVersion) > 0
     ? `Nouvelle version disponible : ${latestVersion}`
-    : 'Aucune nouvelle version disponible';
+    : 'Tu es à jour';
 }
 
 export function decodeBase64Utf8(base64) {

@@ -57,7 +57,7 @@ onMounted(loadChangelog);
         légère et pensée pour l’usage mobile.
       </p>
       <div class="about-meta">
-        <span class="pill">Version {{ appState.version }}</span>
+        <span class="pill">Version actuelle {{ appState.version }}</span>
         <span class="pill">Branche {{ branchName }}</span>
       </div>
     </div>
@@ -91,10 +91,11 @@ onMounted(loadChangelog);
             <p v-else-if="changelogState === 'none'" class="muted">Changelog indisponible pour le moment.</p>
             <p v-else class="error">{{ changelogError }}</p>
           </div>
-          <p v-if="updateMessage" class="success">{{ updateMessage }}</p>
+          <p v-if="changelog" class="muted">Version locale : {{ appState.version }}</p>
+          <p v-if="updateMessage" :class="updateMessage === 'Tu es à jour' ? 'muted' : 'success'">{{ updateMessage }}</p>
           <a class="about-link about-link-inline" :href="changelogUrl" target="_blank" rel="noreferrer">
-            <span class="about-link-title">Version {{ appState.version }}</span>
-            <span class="about-link-hint">Consulter le changelog associé</span>
+            <span class="about-link-title">Ouvrir le changelog</span>
+            <span class="about-link-hint">Voir l’historique complet sur GitHub</span>
           </a>
         </div>
       </div>
