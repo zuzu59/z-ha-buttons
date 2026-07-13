@@ -90,7 +90,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getSetting } from './lib/db.js'
 
-const appVersion = '1.0.1'
+const appVersion = '0.0.0'
 const showMenu = ref(false)
 const toolsOpen = ref(false)
 const showLockModal = ref(false)
