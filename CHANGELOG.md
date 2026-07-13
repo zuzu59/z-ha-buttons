@@ -1,11 +1,17 @@
 # CHANGELOG — z-ha-buttons
 
-## v1.0.0
+## v0.0.5
 
 - Design system officiel (DESIGN.md + .impeccable/design.json)
 - Alignement au design system (anti-gradient text, focus-visible, reduced-motion)
 - Bouton-card avec glow tactile renforcé
-- VERSION: 1.0.0 — design system aligné
+- Palette enrichie (8 tons bleu nuit + accents)
+- Glow boutons électrique + hover animé
+- Focus ring halo bleu
+- Inputs avec glow au focus
+- State-pill (badge arrondi ON/OFF)
+- Welcome/empty states enrichis
+- VERSION: 0.0.5 — alignement design system
 
 # CHANGELOG — z-ha-buttons
 
