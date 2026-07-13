@@ -33,8 +33,8 @@
         <router-link to="/order" @click="showMenu = false">
           📋 Ordre d'affichage
         </router-link>
-        <div class="menu-group">
-          <div class="menu-group-title" @mouseenter="toolsOpen = true" @mouseleave="toolsOpen = false" @focus="toolsOpen = true" @blur="toolsOpen = false">
+        <div class="menu-group" @mouseenter="toolsOpen = true" @mouseleave="toolsOpen = false" @focusin="toolsOpen = true" @focusout="toolsOpen = false">
+          <div class="menu-group-title">
             🔧 Tools ▾
           </div>
           <div v-if="toolsOpen" class="menu-sub">
@@ -228,6 +228,26 @@ body {
   align-items: center;
 }
 
+/* Hamburger button - visible on dark background */
+.btn-icon.hamburger {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
+.btn-icon.hamburger:hover {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: white;
+}
+
 /* Boutons */
 .btn-icon {
   background: none;
@@ -330,10 +350,22 @@ body {
   background: var(--bg-card);
 }
 
+.menu-group {
+  position: relative;
+}
+
 .menu-group-title {
   cursor: pointer;
   font-weight: 500;
   color: var(--text-secondary);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: background 0.2s;
+}
+
+.menu-group:hover .menu-group-title,
+.menu-group:focus-within .menu-group-title {
+  background: var(--bg-card);
 }
 
 .menu-sub {
