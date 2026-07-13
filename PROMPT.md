@@ -1,246 +1,312 @@
-# z-ha-buttons
+# PROMPT-2 — recette exacte de z-ha-buttons
 
-zf260622.1533, zf260622.1838
+Ce document est la **source opératoire** pour recréer l’application à
+partir du code produit, sans dépendre de `PROMPT.md`, `README.md` ou
+`CHANGELOG.md`.
 
-## But
+## 1) But du projet
 
-Créer une application PWA sur smartphone pour piloter facilement des boutons
-Home Assistant afin d'allumer et d'éteindre des appareils via l'API.
+Créer une PWA Vue 3 mobile-first pour piloter des boutons Home Assistant,
+avec :
+- stockage local Dexie,
+- secrets chiffrés,
+- synchronisation Home Assistant,
+- navigation par vues,
+- import / export CSV,
+- menus Help / About / Tools,
+- support GitHub Pages.
 
-## Objectif produit
+## 2) Stack technique
 
-- Application PWA moderne, simple et agréable à utiliser.
-- Usage prioritaire sur smartphone, mais aussi confortable sur desktop.
-- Déploiement sur GitHub Pages via la branche `gh-pages`, uniquement sur
-  demande.
+- Vue 3
+- Vite
+- vue-router
+- Dexie
+- vite-plugin-pwa
+- Vitest
+- Web Crypto API
+- Home Assistant via WebSocket API (principalement)
 
-## Stack et base technique
+## 3) Design / UX à reproduire
 
-- Vite.
-- Vue.js 3.
-- Dexie.js pour la base locale.
-- `@vite-pwa/plugin` pour configurer automatiquement le Service Worker et le
-  mode hors ligne.
+- thème sombre profond (`#0b1020` / `#11192d`)
+- cartes arrondies, bordures fines, gradients bleus/violets
+- topbar compacte avec : titre cliquable à gauche, verrouillage + hamburger à droite
+- footer fin affichant version + état
+- accueil en grille 2 colonnes sur desktop
+- style mobile-first, touch-friendly
+- boutons / cartes sans noms techniques d’entité à l’accueil
+- menu hamburger hiérarchique avec sous-menu `Tools` déplié au survol
+- page About et page Help refactorisées en cartes lisibles
 
-## Contraintes techniques absolues
+## 4) Structure de l’application
 
-### Chiffrement et secrets
+### Routes
+- `/` : accueil
+- `/settings` : configuration Home Assistant
+- `/buttons/new` : ajout d’un bouton
+- `/buttons/:id/edit` : édition d’un bouton
+- `/buttons/:id` : détail d’une lampe
+- `/order` : ordre d’affichage
+- `/sync` : export / import CSV
+- `/help` : aide
+- `/about` : informations / changelog
 
-- Dérivation de clé uniquement via PBKDF2.
-- Utiliser l'API native Web Crypto Subtle.
-- Algorithme de hachage : SHA-256.
-- Salt unique généré avec `crypto.getRandomValues()`.
-- Minimum 600 000 itérations.
-- Chiffrement uniquement avec AES-GCM 256 bits natif.
-- Chaque chiffrement doit utiliser un IV de 12 octets unique et régénéré à
-  chaque fois.
-- Ne jamais stocker le mot de passe maître ni la clé dérivée.
-- Ne stocker que le salt, l'IV et le blob chiffré
-  (`ciphertext + auth tag`).
+### Layout global
+- `src/App.vue`
+  - topbar
+  - router view
+  - footer
+  - menu hamburger
+  - modal de déverrouillage
+- `src/main.js`
+  - initialise le store avant le montage Vue
 
-### Gestion mémoire
+## 5) Modèle de données local
 
-- Éviter au maximum les chaînes de caractères persistantes pour les mots de
-  passe.
-- Préférer `Uint8Array` dès que possible.
-- Prévoir une fonction de wipe mémoire avec `.fill(0)` après utilisation.
-- Prévoir un verrouillage automatique après X minutes d'inactivité.
-- Le verrouillage doit effacer la clé dérivée de la mémoire de l'application.
-- Ne proposer aucune bibliothèque obsolète comme CryptoJS ou sjcl.
-- Utiliser uniquement l'API Web Crypto.
+### Dexie
+Base locale `z-ha-buttons` avec :
+- `settings` : table clé/valeur (`&key`)
+- `buttons` : `++id, order, entityId, kind, updatedAt`
 
-## Interface et navigation
+### Configuration persistée
+Clé `ha-config` contenant au minimum :
+- `serverUrl`
+- `homeAssistantName`
+- `tokenSecret` (chiffré)
+- `masterPassword` (stocké localement pour auto-déverrouillage)
+- `lockMinutes`
+- `updatedAt`
 
-- Interface simple, rapide, sexy et conviviale.
-- Style sombre, moderne, lisible et très contrasté.
-- Design mobile-first, mais utilisable sur desktop.
-- Offline-first.
-- Fiable et simple à maintenir.
-- Boutons compacts et cohérents partout.
-- Aucun retour à la ligne du titre de l'application dans la barre supérieure.
-- Le champ de recherche ne doit jamais déformer le titre.
-- Le hamburger doit rester discret, visible, et toujours à droite.
-- Le menu doit rester compact.
-- Quand on clique sur le titre en haut à gauche, on revient à la home page.
+### Bouton persistant
+Champs attendus :
+- `id`
+- `label`
+- `entityId`
+- `icon`
+- `color`
+- `kind` (`switch` ou `light`)
+- `order`
+- `createdAt`
+- `updatedAt`
+- `state`
+- `attributes`
+- `lastSyncedAt`
 
-## Page principale
+### Ordre d’affichage
+- clé `button-order`
+- stockage des `ids` dans l’ordre choisi
 
-- Afficher les boutons sur deux colonnes.
-- Afficher l'état actuel de chaque bouton via Home Assistant.
-- Les boutons sont des toggles.
-- À chaque clic, ils changent d'état.
-- Un appui long sur un bouton lampe ouvre sa page de détail.
-- Sur cette page, on peut régler l'intensité.
-- Sur cette page, on peut régler la température de couleur.
-- En haut à droite de la page de détail, un bouton `modifier` permet de
-  reconfigurer le bouton complet.
-- La page `modifier` est la même que la page d'ajout de bouton.
+## 6) Sécurité
 
-## Menu hamburger
+- dérivation PBKDF2 + SHA-256
+- AES-GCM 256 bits
+- salt 16 bytes
+- IV 12 bytes
+- chiffrement du token Home Assistant
+- effacement mémoire des buffers sensibles quand possible
+- auto-déverrouillage si le `masterPassword` local est disponible
 
-L'ordre des entrées doit être le suivant :
+## 7) Home Assistant
 
-- Help.
-- Ordre d'affichage des boutons sur la page principale.
-- Ajout d'un bouton.
-- Configuration.
-- Exportation en CSV de la configuration de l'application.
-- Importation en CSV de la configuration de l'application.
-- About.
+### Principe
+- les actions passent par WebSocket API du navigateur
+- REST est conservé comme helper, mais le flux principal est WebSocket
+- cela évite les problèmes CORS
 
-## Configuration
+### Fonctions attendues
+Dans `src/lib/homeAssistant.js` :
+- `pingHomeAssistant(config)`
+- `fetchHomeAssistantConfig(config)`
+- `fetchStates(config)`
+- `fetchEntityState(config, entityId)`
+- `callEntityToggle(config, entityId, nextState?, data?)`
+- `setLightValues(config, entityId, data)`
 
-Dans la page de configuration, définir :
+### Comportement de pilotage
+- `toggle` / `light` ⇒ appel service Home Assistant
+- après action, relire l’état confirmé **avec délai**
+- délai initial post-écriture : **2 secondes**
+- si l’état n’est pas confirmé, refaire une lecture avec **1 seconde** entre les tentatives
+- nombre de retries après délai initial : **3**
+- la même logique doit servir pour :
+  - toggle d’un switch
+  - réglage d’une lampe
 
-- L'adresse du serveur Home Assistant.
-- Le token de l'API Home Assistant.
+### Rafraîchissement accueil
+- au chargement de l’accueil, rafraîchir les états distants et mettre à jour la liste locale
+- l’accueil doit rester cohérent après un retour de vue ou un toggle
 
-## Ajout et modification d'un bouton
+## 8) Écrans à reproduire
 
-Dans la page d'ajout ou de modification d'un bouton, définir :
+### Accueil
+- si aucune config : écran “Bienvenue” + lien Configurer
+- si config : grille de cartes boutons
+- affichage de : icône + label + état
+- ne pas afficher le nom technique de l’entité
+- tap = toggle
+- appui long sur une lampe = ouvrir le détail
 
-- Son entité Home Assistant.
-- L'icône du bouton choisie parmi une liste d'icônes.
-- La couleur du cadre du bouton.
-- La date de création du bouton.
-- La date de modification du bouton.
+### Configuration
+- URL serveur
+- token Home Assistant
+- mot de passe maître
+- confirmation du mot de passe
+- boutons œil pour afficher/masquer token et mot de passe
+- bouton “Tester la connexion”
+- bouton “Enregistrer”
+- le formulaire restaure les valeurs existantes si déjà sauvegardées
 
-Les dates sont affichées, mais pas modifiables.
+### Ajout / édition de bouton
+- libellé
+- entité Home Assistant
+- icône
+- couleur
+- type (`switch` / `light`)
+- enregistrement puis redirection vers le détail
+- si l’entité commence par `light.`, le kind doit devenir `light`
 
-## Export et import
+### Détail lampe
+- bouton Modifier
+- badge avec icône, entité, état
+- slider intensité
+- slider température couleur
+- appliquer intensité
+- appliquer température
+- afficher l’historique local (créé / modifié)
 
-- Permettre l'export de toute la base en CSV.
-- Permettre l'import de toute la base en CSV.
-- Les mots de passe doivent être chiffrés à l'export.
-- Lors de l'import, réinitialiser la base avant insertion.
-- Il ne doit pas y avoir de fusion.
-- Afficher un message clair de confirmation ou d'annulation.
+### Ordre d’affichage
+- réordonner avec boutons ↑ / ↓
+- sauvegarde automatique, sans bouton enregistrer
 
-## Git, commits et changelog
+### Export / import CSV
+- exporter toute la base
+- importer après confirmation
+- l’import doit réinitialiser la base avant restauration
+- gérer les erreurs CSV
 
-- Les commits doivent être atomiques.
-- Utiliser les préfixes suivants : `new`, `change`, `fixe`, `refact`, `del`.
-- Détailler toutes les actions dans les commits.
-- Maintenir un changelog sur GitHub avec version, date et heure.
-- Éviter les commits de travail inutiles du type
-  `change: bump version to 0.0.x` sans valeur.
-- Ne pas incrémenter la version si le commit ne modifie pas l'application
-  buildée.
-- Les releases GitHub doivent être utiles, détaillées et cohérentes.
-- Les notes de release doivent être générées depuis les commits.
-- Les anciennes releases doivent être rétro-remplies avec du contenu utile.
-- Le changelog doit suivre le format Keep a Changelog, en français.
-- Chaque version doit inclure la date et l'heure.
-- Les entrées doivent rester dans l'ordre chronologique.
-- Les sections du changelog doivent rester pertinentes.
-- Les releases GitHub doivent garder le même niveau de détail que le
-  changelog local.
-- Quand un gros effort a été consacré au changelog, conserver cet historique
-  détaillé.
-- Les blocs de version doivent refléter les vraies améliorations produit :
-  UI, sécurité, releases, workflows et corrections de bugs.
+### Help
+- guide de démarrage
+- étapes de configuration
+- utilisation courante
+- maintenance (refresh PWA, reset factory, About)
 
-## Workflow Git et mini kanban
+### About
+- afficher : version locale, branche, liens GitHub, changelog
+- lire le `CHANGELOG.md` brut sur GitHub
+- comparer la version locale avec la dernière version du changelog
+- afficher un message clair :
+  - `Nouvelle version disponible : X`
+  - ou `Tu es à jour`
+- le bouton du bas ouvre le changelog GitHub
 
-- Lire `kanban-a-faire.md` avant de commencer.
-- Déplacer immédiatement toute tâche terminée dans `kanban-termine.md`.
-- Travailler une seule tâche à la fois.
-- Garder le projet déployable à tout moment.
-- Le kanban est la source simple de vérité pour la prochaine action.
-- Les tâches doivent être courtes, concrètes et orientées résultat.
-- Quand une tâche est finie, elle doit quitter `kanban-a-faire.md`
-  immédiatement.
-- Garder le kanban propre : pas de doublons, pas de tâches floues, pas
-  d'éléments non actionnables.
-- Préférer un mini kanban clair plutôt qu'un backlog lourd.
+## 9) Menu hamburger
 
-## Validation locale par navigateur
+Ordre exact :
+- Ajout d’un bouton
+- Ordre d’affichage des boutons
+- Tools
+  - Configuration
+  - Exportation / importation CSV
+  - Force refresh PWA
+  - Reset factory
+- Help
+- About
 
-À chaque modification de code, suivre strictement cet ordre :
+Règles :
+- `Tools` doit rester compact et ne montrer ses entrées qu’au survol / focus
+- `Reset factory` doit demander confirmation
+- `Force refresh PWA` doit nettoyer service workers et caches puis recharger
 
-1. Construire l'application avec `npm run build`.
-2. Démarrer le serveur local une seule fois avec
-   `pm2 start npm --name "pwa-serve" -- run preview`.
-3. Inspecter le résultat avec Playwright Chromium sur `0.0.0.0:4173`.
-4. Faire une capture d'écran ou analyser le HTML généré.
-5. Corriger tout bug visuel ou erreur détectée.
-6. Recommencer depuis l'étape 1 jusqu'à obtenir un résultat parfait.
+## 10) Icône / PWA
 
-Règles associées :
+- utiliser l’image locale `public/app-icon.png`
+- favicon HTML : `app-icon.png`
+- manifest PWA : même image 512×512
+- icône plus jolie que les SVG initiaux
 
-- Ne jamais valider une UI uniquement via le DOM.
-- Conserver toutes les captures dans `copies-d-ecrans/` et elles doivent avoir un timestamp yymmdd.hhmm.
-- Le serveur local de validation doit utiliser `host 0.0.0.0` et le port
-  `4173`.
-- Si un autre port existe, le fermer pour n'en garder qu'un seul.
-- Le serveur local sert à itérer rapidement, sans déployer à chaque
-  modification.
-- Incrémenter la version à chaque modification de code afin de vérifier que
-  la dernière version est bien utilisée.
+## 11) Router / base URL / GitHub Pages
 
-## Déploiement
+- le router doit utiliser `createWebHistory(import.meta.env.BASE_URL)`
+- le build doit supporter GitHub Pages sous `/z-ha-buttons/`
+- en publication Pages :
+  - base Vite = `/z-ha-buttons/`
+  - manifest `start_url` et `scope` doivent suivre cette base
+  - `404.html` doit exister pour le SPA fallback
+  - `.nojekyll` doit être présent
 
-- Déployer uniquement quand cela est demandé.
-- Le site doit rester déployable sur GitHub Pages via `gh-pages`.
-- Après push, vérifier GitHub Actions et les déploiements.
-- Ne pousser ou publier qu'après validation locale visuelle.
-- Les artefacts de build doivent rester compatibles avec GitHub Pages.
-- Corriger les problèmes de workflow GitHub avant de considérer la livraison
-  comme terminée.
-- Si la modification ne change pas l'application elle-même
-  (prompt, documentation, kanban, notes), il est possible de pousser sans
-  incrémenter la version applicative ni redéployer.
-- Pousser le changelog et la version dans le système de release GitHub.
+## 12) Scripts NPM
 
-## Menu About
+- `npm run dev` : Vite dev server
+- `npm run build` : build production
+- `npm test` : Vitest
+- `npm run preview` : preview strict sur `0.0.0.0:4173`
+- `npm run preview:manual` : preview manuel dédié
+- `npm run smoke:browser` : smoke headless avec un seul serveur preview
 
-Le menu About doit afficher :
+## 13) Tests à maintenir
 
-- Le profil GitHub `GitHub.com/zuzu59`.
-- Le dépôt GitHub de l'application.
-- La version de l'application.
-- Un lien vers le changelog.
+Vitest couvre au minimum :
+- version de l’application
+- base router pour GitHub Pages
+- icône / manifest
+- logique changelog (extraction + comparaison + message)
+- composant ButtonCard sans `entityId` affiché
+- workflow smoke browser
+- workflow preview manuel
+- temporisation post-action : 2 s avant lecture + retries conservés
 
-### Comportement About
+## 14) Procédures de travail à suivre à chaque modification
 
-- Au chargement, vérifier la dernière release GitHub.
-- Si une version plus récente existe, afficher `Nouvelle version disponible`.
-- Le clic sur la version ouvre le changelog GitHub.
-- Les boutons de la page About doivent respecter une hauteur compacte.
-- La vérification de release doit rester fiable malgré le cache navigateur ou
-  un refresh.
+### Obligatoire
+1. Faire la modification.
+2. **Incrémenter la version** immédiatement.
+3. Mettre à jour le `CHANGELOG.md`.
+4. **Redémarrer le serveur local 4173** pour que la nouvelle version soit testable.
+5. Lancer les tests pertinents.
+6. Lancer `npm run build`.
+7. Si changement visuel : vérifier avec browser headless.
 
-## Versions, releases et changelog
+### Règles du serveur local
+- le développement et les tests se font sur le serveur local `4173`
+- garder **un seul** serveur visible à la fois
+- tuer les serveurs parasites avant d’en relancer un autre
+- `preview:manual` doit rester ouvert jusqu’à arrêt manuel
+- `smoke:browser` doit nettoyer ses processus automatiquement
 
-- Version affichée en bas de chaque page.
-- Versionnement en `0.0.x`.
-- Releases GitHub utiles et détaillées.
-- Ne pas incrémenter la version si le commit ne modifie pas l'application
-  buildée.
-- Changelog en français au format Keep a Changelog.
-- Chaque version doit inclure la date et l'heure.
-- Le changelog doit détailler les commits, sans ligne vide inutile.
-- Les anciennes releases GitHub doivent être rétro-remplies avec du contenu
-  utile.
-- Les notes de release doivent être générées depuis les commits.
-- Éviter les commits de travail absurdes du type
-  `change: bump version to 0.0.x` sans valeur.
-- Utiliser des commits atomiques avec les préfixes `new`, `change`, `fixe`,
-  `refact`, `del`.
-- La reconstruction du changelog doit partir des commits réels, avec du détail
-  utile.
-- Les entrées de version doivent garder l'ordre chronologique et les sections
-  pertinentes.
-- Les releases GitHub doivent reprendre le même niveau de détail que le
-  changelog local.
-- Quand un gros effort a été consacré au changelog, il faut conserver
-  l'historique détaillé.
-- Les blocs de version doivent refléter les vraies améliorations produit :
-  UI, sécurité, releases, workflows et corrections de bugs.
+### Règles de publication
+- ne publier sur `gh-pages` **que sur demande explicite**
+- la source de travail reste la branche `ver2`
+- la branche de publication est `gh-pages`
+- pour publier : construire, copier le contenu de `dist/` dans `gh-pages`, ajouter `404.html` et `.nojekyll`, puis pousser
 
-## Règle finale
+## 15) Ordre de reconstruction recommandé
 
-Un agent qui suit uniquement ce fichier doit pouvoir reconstruire une
-application fonctionnellement équivalente à Z-Services, avec les mêmes choix
-UX, sécurité, versions, releases, validation visuelle et workflow de
-maintenance.
+1. Créer le projet Vue 3 / Vite.
+2. Installer `vue-router`, `dexie`, `vite-plugin-pwa`, `vitest`.
+3. Mettre en place le thème sombre et le layout global.
+4. Créer la base Dexie + store global.
+5. Implémenter le chiffrement Web Crypto.
+6. Implémenter Home Assistant via WebSocket.
+7. Créer l’accueil + cartes + appui long.
+8. Créer configuration + ajout / édition + détail lampe.
+9. Créer ordre, CSV, Help, About, Tools menu.
+10. Ajouter tests Vitest.
+11. Ajouter icône PWA + manifest.
+12. Préparer GitHub Pages.
+13. Valider par build, tests et smoke headless.
+14. Publier sur `gh-pages` uniquement quand demandé.
+
+## 16) Variables d’environnement de test
+
+Pour les tests Home Assistant/headless :
+- `HA_URL`
+- `HA_TOKEN`
+- `HA_ENTITE_1`
+- `HA_ENTITE_2`
+- `HA_ENTITE_3`
+
+## 17) Résumé de la règle d’or
+
+Toujours partir du code source réel, reconstruire les comportements ci-dessus,
+puis valider en local sur le port `4173` avant toute publication.
