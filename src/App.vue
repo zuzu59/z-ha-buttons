@@ -90,7 +90,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getSetting } from './lib/db.js'
 
-const appVersion = '0.0.3'
+const appVersion = '1.0.0'
 const showMenu = ref(false)
 const toolsOpen = ref(false)
 const showLockModal = ref(false)
@@ -171,6 +171,12 @@ async function confirmResetFactory() {
       await Promise.all(keys.map(key => caches.delete(key)))
     }
     
+    // Désinscrire le service worker
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(regs.map(reg => reg.unregister()))
+    }
+    
     // Recharger
     window.location.reload()
   }
@@ -185,18 +191,24 @@ async function confirmResetFactory() {
 }
 
 :root {
-  --bg-primary: #0b1020;
-  --bg-secondary: #11192d;
-  --bg-card: #151f3d;
-  --border-color: #1e2a4a;
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f162e;
+  --bg-card: #131c3c;
+  --bg-elevated: #17224a;
+  --border-color: #1b2858;
+  --border-hover: #2a467d;
   --text-primary: #e0e6f0;
   --text-secondary: #8892a8;
+  --text-muted: #667088;
   --accent-blue: #4a9eff;
+  --accent-blue-light: #6eb8ff;
   --accent-violet: #8b5cf6;
   --gradient: linear-gradient(135deg, #4a9eff, #8b5cf6);
+  --gradient-hover: linear-gradient(135deg, #6eb8ff, #a77ef8);
   --danger: #ef4444;
   --success: #22c55e;
   --warning: #f59e0b;
+  --focus-ring: rgba(74, 158, 255, 0.5);
 }
 
 body {
@@ -233,10 +245,6 @@ body {
   font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .topbar-actions {
@@ -288,16 +296,26 @@ body {
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.2);
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background: var(--gradient-hover);
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.2);
 }
 
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-secondary {
@@ -307,11 +325,13 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-secondary:hover {
   border-color: var(--accent-blue);
+  background: var(--bg-elevated);
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.1);
 }
 
 .btn-danger {
@@ -480,11 +500,12 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 1rem;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-  border-color: var(--accent-blue);
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.1);
 }
 
 /* Formulaire */
@@ -509,6 +530,7 @@ body {
   border-radius: 0.5rem;
   color: var(--text-primary);
   font-size: 0.95rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-group input:focus,
@@ -516,6 +538,7 @@ body {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 /* Grille d'accueil */
@@ -529,6 +552,22 @@ body {
 @media (max-width: 600px) {
   .grid-buttons {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Focus visible */
+*:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

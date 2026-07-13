@@ -1,5 +1,14 @@
 # CHANGELOG — z-ha-buttons
 
+## v1.0.0
+
+- Design system officiel (DESIGN.md + .impeccable/design.json)
+- Alignement au design system (anti-gradient text, focus-visible, reduced-motion)
+- Bouton-card avec glow tactile renforcé
+- VERSION: 1.0.0 — design system aligné
+
+# CHANGELOG — z-ha-buttons
+
 ## v0.0.3
 
 - Reset factory complet (Dexie + localStorage + caches)

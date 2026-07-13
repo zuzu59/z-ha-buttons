@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-13T19:00:00.000Z",
+  "title": "Design System: z-ha-buttons",
+  "extensions": {
+    "colorMeta": {
+      "midnight-navy": { "role": "neutral", "displayName": "Midnight Navy", "canonical": "#0b1020", "tonalRamp": ["#050810", "#080e1a", "#0b1020", "#0f162e", "#131c3c", "#17224a", "#1b2858", "#1f2e66"] },
+      "deep-space": { "role": "neutral", "displayName": "Deep Space", "canonical": "#11192d", "tonalRamp": ["#060a14", "#091020", "#11192d", "#16223d", "#1b2b4d", "#20345d", "#253d6d", "#2a467d"] },
+      "night-velvet": { "role": "neutral", "displayName": "Night Velvet", "canonical": "#151f3d", "tonalRamp": ["#0a0e1f", "#0f162e", "#151f3d", "#1a284d", "#1f315d", "#243a6d", "#29437d", "#2e4c8d"] },
+      "electric-blue": { "role": "primary", "displayName": "Electric Blue", "canonical": "#4a9eff", "tonalRamp": ["#1a3f7f", "#2a5f9f", "#4a9eff", "#6eb8ff", "#92d1ff", "#b6eaff", "#d9f3ff", "#f5faff"] },
+      "sapphire": { "role": "primary", "displayName": "Sapphire", "canonical": "#8b5cf6", "tonalRamp": ["#4a1db8", "#633dd4", "#8b5cf6", "#a77ef8", "#c3a0fa", "#dfc2fc", "#f0e4fe", "#faf5ff"] },
+      "warm-ink": { "role": "neutral", "displayName": "Warm Ink", "canonical": "#e0e6f0", "tonalRamp": ["#4a5060", "#6a7080", "#8892a8", "#a8b0c0", "#c8d0dc", "#e0e6f0", "#f0f2f8", "#fafbff"] },
+      "dusk": { "role": "neutral", "displayName": "Dusk", "canonical": "#8892a8", "tonalRamp": ["#2e3448", "#4a5068", "#667088", "#8892a8", "#a8b0c0", "#c8d0dc", "#e0e6f0", "#f0f2f8"] },
+      "emerald": { "role": "semantic", "displayName": "Emerald", "canonical": "#22c55e", "tonalRamp": ["#0a5c2c", "#118c44", "#22c55e", "#4ad67a", "#72e696", "#9af0b2", "#c2f8ce", "#e6ffea"] },
+      "crimson": { "role": "semantic", "displayName": "Crimson", "canonical": "#ef4444", "tonalRamp": ["#7f1a1a", "#b82e2e", "#ef4444", "#f56e6e", "#fb9898", "#fdc2c2", "#fee4e4", "#fff5f5"] },
+      "amber": { "role": "semantic", "displayName": "Amber", "canonical": "#f59e0b", "tonalRamp": ["#7f5a06", "#b07a08", "#f59e0b", "#f7b83e", "#f9d271", "#fbe8a4", "#fdf3d7", "#fefcf5"] }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "Main text, comfortable on mobile." },
+      "heading": { "displayName": "Heading", "purpose": "Section titles, strong labels." },
+      "label": { "displayName": "Label", "purpose": "Subtitles, hints, metadata." }
+    },
+    "shadows": [
+      { "name": "ambient-glow", "value": "0 4px 20px rgba(74, 158, 255, 0.15)", "purpose": "Subtle hover glow on interactive cards." },
+      { "name": "active-glow", "value": "0 0 15px rgba(34, 197, 94, 0.2)", "purpose": "State indicator for ON buttons." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default transition easing." },
+      { "name": "duration-fast", "value": "0.2s", "purpose": "Quick feedback (hover, focus)." },
+      { "name": "duration-medium", "value": "0.3s", "purpose": "State changes (active, tap)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button Card",
+      "kind": "custom",
+      "refersTo": "button-card",
+      "description": "Signature component. A tappable card representing a Home Assistant entity. Shows icon, label, and state with glow feedback.",
+      "html": "<div class=\"ds-btn-card\">  <div class=\"ds-btn-card__icon\">💡</div>  <div class=\"ds-btn-card__label\">Chambre</div>  <div class=\"ds-btn-card__state ds-btn-card__state--on\">● ON</div></div>",
+      "css": ".ds-btn-card {  background: #151f3d;  border: 1px solid #11192d;  border-radius: 1rem;  padding: 1.5rem 1rem;  text-align: center;  cursor: pointer;  transition: all 0.3s ease;  user-select: none;}.ds-btn-card:hover {  transform: translateY(-2px);  border-color: #4a9eff;  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.15);}.ds-btn-card:active {  transform: scale(0.97);}.ds-btn-card.is-on {  border-color: #22c55e;  box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);}.ds-btn-card__icon {  font-size: 2.5rem;  margin-bottom: 0.5rem;}.ds-btn-card__label {  font-weight: 500;  margin-bottom: 0.25rem;  font-size: 0.9rem;  color: #e0e6f0;}.ds-btn-card__state {  font-size: 0.8rem;}.ds-btn-card__state--on {  color: #22c55e;  font-weight: 600;}.ds-btn-card__state--off {  color: #8892a8;}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action button with gradient background.",
+      "html": "<button class=\"ds-btn-primary\">Action</button>",
+      "css": ".ds-btn-primary {  background: linear-gradient(135deg, #4a9eff, #8b5cf6);  color: #e0e6f0;  border: none;  padding: 0.5rem 1.5rem;  border-radius: 0.5rem;  font-weight: 500;  font-size: 1rem;  cursor: pointer;  transition: opacity 0.2s;}.ds-btn-primary:hover {  opacity: 0.9;}.ds-btn-primary:disabled {  opacity: 0.5;  cursor: not-allowed;}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Lesser action button with filled background.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary {  background: #151f3d;  color: #e0e6f0;  border: 1px solid #11192d;  padding: 0.5rem 1rem;  border-radius: 0.5rem;  cursor: pointer;  transition: border-color 0.2s;}.ds-btn-secondary:hover {  border-color: #4a9eff;}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "General container with rounded corners and subtle border.",
+      "html": "<div class=\"ds-card\">  <p>Content here</p></div>",
+      "css": ".ds-card {  background: #151f3d;  border: 1px solid #11192d;  border-radius: 1rem;  padding: 1rem;  transition: transform 0.2s, border-color 0.2s;}.ds-card:hover {  border-color: #4a9eff;}"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text input with focus glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Enter value\" />",
+      "css": ".ds-input {  width: 100%;  padding: 0.5rem 0.75rem;  background: #0b1020;  border: 1px solid #11192d;  border-radius: 0.5rem;  color: #e0e6f0;  font-size: 0.95rem;}.ds-input:focus {  outline: none;  border-color: #4a9eff;}"
+    },
+    {
+      "name": "Menu Panel",
+      "kind": "nav",
+      "refersTo": "menu",
+      "description": "Hamburger menu overlay with navigation items.",
+      "html": "<nav class=\"ds-menu\">  <a href=\"#\">🏠 Accueil</a>  <a href=\"#\">⚙️ Settings</a></nav>",
+      "css": ".ds-menu {  background: #11192d;  border: 1px solid #11192d;  border-radius: 1rem;  padding: 1rem;  width: 90%;  max-width: 350px;  display: flex;  flex-direction: column;  gap: 0.25rem;}.ds-menu a {  display: block;  padding: 0.75rem 1rem;  color: #e0e6f0;  text-decoration: none;  border-radius: 0.5rem;  transition: background 0.2s;}.ds-menu a:hover {  background: #151f3d;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Intimate Salon",
+    "overview": "Imaginez un salon privé, tard le soir. Le velours sombre des murs absorbe le bruit du monde extérieur. Une seule lumière chaude émerge d'un lampadaire — elle guide, elle n'éclaire pas tout. Ici, chaque interaction est deliberate, tactile, satisfaisante.",
+    "keyCharacteristics": [
+      "Palette sombre et riche (bleu nuit profond)",
+      "Accent électrique bleu-violet (rareté = impact)",
+      "Typographie système, lisible, sans fioritures",
+      "Coins arrondis (1rem) pour la douceur",
+      "Glow lumineux comme indicateur de profondeur (pas d'ombres)",
+      "Feedback tactile fort au tap (scale + transition)"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "L'Electric Blue apparaît sur ≤10% de la surface visible. Sa rareté est sa force.", "section": "colors" },
+      { "name": "The Flat-By-Default Rule", "body": "Les surfaces sont plates au repos. La lumière n'apparaît qu'en réponse à l'interaction.", "section": "elevation" },
+      { "name": "The System Font Rule", "body": "Pas de Google Fonts, pas de chargement externe. La police du système est rapide, familière.", "section": "typography" }
+    ],
+    "dos": [
+      "Do utiliser le glow comme indicateur d'interactivité",
+      "Do maintenir l'accent Electric Blue rare (≤10%)",
+      "Do privilégier les coins arrondis pour la douceur",
+      "Do utiliser le gradient uniquement sur les actions principales",
+      "Do tester le contraste texte/fond (≥4.5:1)",
+      "Do ajouter un feedback tactile fort au tap"
+    ],
+    "donts": [
+      "Don't utiliser d'ombres portées classiques",
+      "Don't surcharger l'interface d'options",
+      "Don't utiliser de gradient text",
+      "Don't ajouter de bordures latérales colorées >1px",
+      "Don't utiliser de glassmorphism décoratif",
+      "Don't empiler les cartes les unes sur les autres",
+      "Don't utiliser de texte en majuscules avec tracking large",
+      "Don't créer de grilles identiques sans variation",
+      "Don't utiliser de nombres séquentiels comme scaffolding",
+      "Don't laisser le texte déborder du container"
+    ]
+  }
+}
