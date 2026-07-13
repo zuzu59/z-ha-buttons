@@ -1,5 +1,17 @@
 # CHANGELOG — z-ha-buttons
 
+## v0.0.6
+
+- Tests E2E headless Playwright (config HA, création bouton, toggle)
+- Fix version Dexie 1→10 (match navigateur)
+- Fix ButtonDetail: parseInt(route.params.id) pour getButton
+- Fix App.vue: id='app' dupliqué (causait page blanche)
+- Home.vue: orderedButtons en computed (réactif)
+- Token HA masqué (type=password) dans screenshots
+- Timestamp screenshots: yymmdd.hhmm
+- Connexion WebSocket HA validée (token JWT valide)
+- VERSION: 0.0.6 — E2E + fixes boutons
+
 ## v0.0.5
 
 - Design system officiel (DESIGN.md + .impeccable/design.json)
