@@ -1,5 +1,11 @@
 # CHANGELOG — z-ha-buttons
 
+## v1.0.1
+
+- Correction WebSocket HA (message auth sans id, URL trailing slash)
+- Test UI connexion HA via Playwright
+- Scripts screenshots headless
+
 ## v1.0.0
 
 - Première version

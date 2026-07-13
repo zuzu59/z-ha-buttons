@@ -1,6 +1,6 @@
 {
   "name": "z-ha-buttons",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "PWA pour piloter des boutons Home Assistant",
   "type": "module",
   "scripts": {
