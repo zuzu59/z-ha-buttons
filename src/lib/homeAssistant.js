@@ -8,24 +8,25 @@ const RETRY_DELAY = 1000        // 1 seconde entre retries
 const MAX_RETRIES = 3
 
 function getWsUrl(serverUrl, token) {
-  const base = serverUrl.replace(/^https?:\/\//, '')
+  const base = serverUrl.replace(/^https?:\/\//, '').replace(/\/+$/, '')
   const protocol = serverUrl.startsWith('https') ? 'wss' : 'ws'
-  const path = base.endsWith('/') ? base.slice(0, -1) : base
-  return `${protocol}://${path}/api/websocket`
+  return `${protocol}://${base}/api/websocket`
 }
 
 function sendMessage(ws, msg) {
   return new Promise((resolve, reject) => {
-    const id = Math.floor(Math.random() * 1000000)
-    const payload = { ...msg, id }
+    const id = msg.type === 'auth' ? null : Math.floor(Math.random() * 1000000)
+    const payload = { ...msg }
+    if (id !== null) payload.id = id
     const handler = (event) => {
       const data = JSON.parse(event.data)
-      if (data.id === id) {
+      // HA renvoie auth_ok/auth_invalid SANS id - matcher sur le type
+      if (data.id === id || data.type === 'auth_ok' || data.type === 'auth_invalid') {
         ws.removeEventListener('message', handler)
         if (data.type === 'result') {
           resolve(data.result)
-        } else if (data.type === 'result' && data.error) {
-          reject(new Error(data.error?.message || 'Erreur HA'))
+        } else if (data.type === 'auth_invalid') {
+          reject(new Error('Token invalide'))
         } else {
           resolve(data)
         }

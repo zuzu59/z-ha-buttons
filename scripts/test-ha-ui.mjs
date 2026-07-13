@@ -19,7 +19,8 @@ async function main() {
   const browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({
     viewport: { width: 375, height: 812 },
-    deviceScaleFactor: 2
+    deviceScaleFactor: 2,
+    ignoreHTTPSErrors: true
   })
   const page = await context.newPage()
 
@@ -29,6 +30,21 @@ async function main() {
   })
   page.on('pageerror', err => {
     console.log(`   [ERROR] ${err.message}`)
+  })
+
+  // Test WebSocket directement dans le navigateur
+  await page.evaluate(async () => {
+    return new Promise((resolve, reject) => {
+      const ws = new WebSocket('wss://hafamillez.duckdns.org:8123/api/websocket')
+      ws.onopen = () => resolve('connecté')
+      ws.onerror = (e) => reject('erreur: ' + e)
+      ws.onmessage = (e) => resolve('message: ' + e.data.substring(0, 100))
+      setTimeout(() => reject('timeout'), 10000)
+    })
+  }).then(result => {
+    console.log('   [WS TEST] Browser:', result)
+  }).catch(err => {
+    console.log('   [WS TEST] Erreur:', err)
   })
 
   // 1. Aller sur settings
@@ -50,8 +66,8 @@ async function main() {
   await page.click('button:has-text("Tester la connexion")')
 
   // 4. Attendre le résultat
-  console.log('→ En attente du résultat (15s)...')
-  await page.waitForTimeout(15000)
+  console.log('→ En attente du résultat (30s)...')
+  await page.waitForTimeout(30000)
 
   // 5. Capturer le résultat
   const screenshot = `${Date.now()}-test-connexion.png`
@@ -59,22 +75,17 @@ async function main() {
   console.log(`📸 Screenshot: ${screenshot}`)
 
   // 6. Vérifier le message de succès/erreur
-  const msgEl = await page.locator('.success-text, .error-text, p:has-text("Connexion")').first()
+  const msgEl = await page.locator('.success-text, .error-text').first()
   if (await msgEl.isVisible().catch(() => false)) {
     const msg = await msgEl.textContent()
     console.log(`   Message: ${msg.trim()}`)
-    if (msg.toLowerCase().includes('succès') || msg.toLowerCase().includes('connecté') || msg.toLowerCase().includes('ok')) {
+    if (msg.toLowerCase().includes('succès') || msg.toLowerCase().includes('connecté')) {
       console.log('✅ Connexion HA réussie !')
-    } else if (msg.toLowerCase().includes('erreur') || msg.toLowerCase().includes('échec') || msg.toLowerCase().includes('impossible')) {
+    } else if (msg.toLowerCase().includes('échec') || msg.toLowerCase().includes('erreur')) {
       console.log('❌ Échec de connexion')
-    } else {
-      console.log(`? Message ambigu: ${msg.trim()}`)
     }
   } else {
     console.log('   Aucun message visible')
-    // Check page content for debugging
-    const content = await page.content()
-    console.log('   Page has message element:', content.includes('Connexion') || content.includes('Échec'))
   }
 
   await browser.close()
