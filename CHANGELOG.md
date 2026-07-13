@@ -1,6 +1,6 @@
 # CHANGELOG — z-ha-buttons
 
-## v0.0.0
+## v0.0.1
 
 - Initialisation du projet
 - Reconstruction complète depuis PROMPT.md
