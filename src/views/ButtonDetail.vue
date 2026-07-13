@@ -99,7 +99,7 @@ const applying = ref(false)
 const haConfig = ref(null)
 
 onMounted(async () => {
-  button.value = await getButton(route.params.id)
+  button.value = await getButton(parseInt(route.params.id))
   if (button.value) {
     const settings = await getSetting('ha-config')
     if (settings) {
@@ -130,7 +130,7 @@ async function applyBrightness() {
       button.value.entityId,
       { brightness: parseInt(brightnessValue.value) }
     )
-    const updated = await getButton(route.params.id)
+    const updated = await getButton(parseInt(route.params.id))
     if (updated) {
       button.value = updated
       brightnessValue.value = updated.attributes?.brightness || 0
@@ -151,7 +151,7 @@ async function applyColorTemp() {
       button.value.entityId,
       { color_temp: parseInt(colorTempValue.value) }
     )
-    const updated = await getButton(route.params.id)
+    const updated = await getButton(parseInt(route.params.id))
     if (updated) {
       button.value = updated
       colorTempValue.value = updated.attributes?.color_temp || 0

@@ -15,6 +15,7 @@ function getWsUrl(serverUrl, token) {
 
 function sendMessage(ws, msg) {
   return new Promise((resolve, reject) => {
+    // Ne jamais ajouter d'id pour le message auth (HA le rejette)
     const id = msg.type === 'auth' ? null : Math.floor(Math.random() * 1000000)
     const payload = { ...msg }
     if (id !== null) payload.id = id

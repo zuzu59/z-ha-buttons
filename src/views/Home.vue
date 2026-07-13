@@ -49,13 +49,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getSetting, getButtons, syncButtonState } from '../lib/db.js'
 import { fetchStates, callEntityToggle, refreshStateAfterAction } from '../lib/homeAssistant.js'
 
 const hasConfig = ref(false)
 const buttons = ref([])
 const haConfig = ref(null)
+
+const orderedButtons = computed(() => {
+  return buttons.value.sort((a, b) => {
+    if (!a.order && !b.order) return 0
+    if (!a.order) return 1
+    if (!b.order) return -1
+    return a.order - b.order
+  })
+})
 
 onMounted(async () => {
   const settings = await getSetting('ha-config')
@@ -95,17 +104,6 @@ async function refreshButtons() {
     }
   }
 }
-
-function getOrderedButtons() {
-  return buttons.value.sort((a, b) => {
-    if (!a.order && !b.order) return 0
-    if (!a.order) return 1
-    if (!b.order) return -1
-    return a.order - b.order
-  })
-}
-
-const orderedButtons = getOrderedButtons()
 
 async function handleTap(button) {
   if (!haConfig.value) return

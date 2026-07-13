@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="app">
+  <div class="app">
     <!-- Topbar -->
     <header class="topbar">
       <router-link to="/" class="topbar-title">

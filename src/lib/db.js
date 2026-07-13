@@ -7,7 +7,7 @@ export async function createAppStore() {
 
   db = new Dexie('z-ha-buttons')
 
-  db.version(1).stores({
+  db.version(10).stores({
     settings: '&key, value, updatedAt',
     buttons: '++id, [entityId+kind], order, entityId, kind, updatedAt',
     buttonOrder: '&key, value, updatedAt'
@@ -123,7 +123,7 @@ export async function importDB(data) {
   await db.delete()
   db = null
   db = new Dexie('z-ha-buttons')
-  db.version(1).stores({
+  db.version(10).stores({
     settings: '&key, value, updatedAt',
     buttons: '++id, [entityId+kind], order, entityId, kind, updatedAt',
     buttonOrder: '&key, value, updatedAt'
