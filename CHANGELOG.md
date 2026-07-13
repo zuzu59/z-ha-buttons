@@ -1,5 +1,11 @@
 # CHANGELOG — z-ha-buttons
 
+## v0.0.3
+
+- Reset factory complet (Dexie + localStorage + caches)
+
+# CHANGELOG — z-ha-buttons
+
 ## v0.0.2
 
 - Hamburger visible (fond bleu + bordure, 2.2rem)

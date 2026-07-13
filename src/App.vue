@@ -90,7 +90,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getSetting } from './lib/db.js'
 
-const appVersion = '0.0.2'
+const appVersion = '0.0.3'
 const showMenu = ref(false)
 const toolsOpen = ref(false)
 const showLockModal = ref(false)
@@ -154,7 +154,24 @@ function forceRefreshPWA() {
 
 async function confirmResetFactory() {
   if (confirm('⚠️ Réinitialisation factory\n\nToutes les données seront supprimées. Continuer ?')) {
+    // Vider Dexie (IndexedDB)
+    try {
+      const { resetDB } = await import('./lib/db.js')
+      await resetDB()
+    } catch (err) {
+      console.error('Erreur reset Dexie:', err)
+    }
+    
+    // Vider localStorage
     localStorage.clear()
+    
+    // Vider les caches (PWA)
+    if ('caches' in window) {
+      const keys = await caches.keys()
+      await Promise.all(keys.map(key => caches.delete(key)))
+    }
+    
+    // Recharger
     window.location.reload()
   }
 }
