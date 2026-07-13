@@ -1,5 +1,12 @@
 # CHANGELOG — z-ha-buttons
 
+## v0.0.2
+
+- Hamburger visible (fond bleu + bordure)
+- Menu Tools stable au hover (submenu reste ouvert)
+
+# CHANGELOG — z-ha-buttons
+
 ## v0.0.1
 
 - Initialisation du projet
